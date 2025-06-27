@@ -132,7 +132,7 @@ export default function Map({ villages, search, filter }: Props) {
         className={`h-screen w-full z-10 ${addingVillage && !newVillageCoords ? "cursor-pin" : ""}`}
       >
         <TileLayer
-          attribution='&copy; OpenStreetMap contributors'
+          // attribution='&copy; OpenStreetMap contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         {/* Only enable map click when addingVillage and no coords yet */}
