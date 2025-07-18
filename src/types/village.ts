@@ -1,5 +1,5 @@
 export type VillageStatus = 'visited' | 'not-visited' | 'planned';
-import type { Parent } from "../../components/Map";
+import type { Parent } from "../Map/components/Map";
 
 export interface Village {
   id: string;

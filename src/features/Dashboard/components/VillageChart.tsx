@@ -1,10 +1,10 @@
-import React from 'react';
-import { Village } from '../../data/types/village';
+import React from "react";
+import { Village } from "../../../types/village";
 
 export default function VillageChart({ villages }: { villages: Village[] }) {
-  const visited = villages.filter((v) => v.status === 'visited').length;
-  const planned = villages.filter((v) => v.status === 'planned').length;
-  const notVisited = villages.filter((v) => v.status === 'not-visited').length;
+  const visited = villages.filter((v) => v.status === "visited").length;
+  const planned = villages.filter((v) => v.status === "planned").length;
+  const notVisited = villages.filter((v) => v.status === "not-visited").length;
 
   const total = visited + planned + notVisited;
 

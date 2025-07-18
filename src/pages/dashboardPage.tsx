@@ -1,21 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { collection, onSnapshot } from 'firebase/firestore';
-import { db } from '../lib/firebase';
-import { Village } from '../data/types/village';
-import StatsCards from '../components/Dashboard/StatsCards';
-import SearchFilters from '../components/Dashboard/SearchFilters';
-import VillageChart from '../components/Dashboard/VillageChart';
-import VisitCalendar from '../components/Dashboard/VisitCalendar';
-import ActivityLog from '../components/Dashboard/ActivityLog';
-import VillageList from '../components/Dashboard/VillageList';
+import React, { useEffect, useState } from "react";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../services/firebase";
+import { Village } from "../types/village";
+import StatsCards from "../components/Dashboard/components/StatsCards";
+import SearchFilters from "../components/Dashboard/components/SearchFilters";
+import VillageChart from "../components/Dashboard/components/VillageChart";
+import VisitCalendar from "../components/Dashboard/components/VisitCalendar";
+import ActivityLog from "../components/Dashboard/components/ActivityLog";
+import VillageList from "../components/Dashboard/components/VillageList";
 
 export default function DashboardPage() {
   const [villages, setVillages] = useState<Village[]>([]);
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<'all' | 'visited' | 'planned' | 'not_visited'>('all');
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<
+    "all" | "visited" | "planned" | "not_visited"
+  >("all");
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'villages'), (snap) => {
+    const unsubscribe = onSnapshot(collection(db, "villages"), (snap) => {
       const data = snap.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -28,7 +30,7 @@ export default function DashboardPage() {
   const filtered = villages.filter((v) => {
     return (
       v.name.toLowerCase().includes(search.toLowerCase()) &&
-      (filter === 'all' || v.status === filter)
+      (filter === "all" || v.status === filter)
     );
   });
 

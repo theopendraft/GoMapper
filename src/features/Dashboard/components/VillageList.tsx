@@ -1,6 +1,6 @@
-import React from 'react';
-import { Village } from '../../data/types/village';
-import { Badge } from '../../components/ui/badge';
+import React from "react";
+import { Village } from "../../../types/village";
+import { Badge } from "../../ui/badge";
 
 export default function VillageList({ villages }: { villages: Village[] }) {
   return (
@@ -20,14 +20,14 @@ export default function VillageList({ villages }: { villages: Village[] }) {
             </div>
             <Badge
               variant={
-                v.status === 'visited'
-                  ? 'success'
-                  : v.status === 'planned'
-                  ? 'warning'
-                  : 'danger'
+                v.status === "visited"
+                  ? "success"
+                  : v.status === "planned"
+                  ? "warning"
+                  : "danger"
               }
             >
-              {v.status.replace('_', ' ')}
+              {v.status.replace("_", " ")}
             </Badge>
           </li>
         ))}

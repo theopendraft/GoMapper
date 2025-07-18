@@ -1,9 +1,9 @@
 // src/components/MapWithPanel.tsx
-import React, { useState, useEffect } from 'react';
-import Map from './Map';
-import MapSummaryPanel from './MapSummaryPanel';
-import { collection, onSnapshot } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import React, { useState, useEffect } from "react";
+import Map from "./Map";
+import MapSummaryPanel from "./MapSummaryPanel";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../../services/firebase";
 
 // Define the Village type to match the Map component's expected structure
 type Village = {
@@ -12,19 +12,21 @@ type Village = {
   tehsil: string;
   coords: [number, number];
   population: number;
-  status: 'visited' | 'planned' | 'not-visited';
+  status: "visited" | "planned" | "not-visited";
   parents: { name: string; contact: string }[];
 };
 
 export default function MapWithPanel() {
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<'all' | 'visited' | 'planned' | 'not-visited'>('all');
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<
+    "all" | "visited" | "planned" | "not-visited"
+  >("all");
   const [villages, setVillages] = useState<Village[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'villages'), (snapshot) => {
-      const data = snapshot.docs.map(doc => {
+    const unsubscribe = onSnapshot(collection(db, "villages"), (snapshot) => {
+      const data = snapshot.docs.map((doc) => {
         const docData = doc.data();
         return {
           id: Number(doc.id),

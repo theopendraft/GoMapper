@@ -1,10 +1,22 @@
 // src/components/Map.tsx
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMapEvent } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMapEvent,
+} from "react-leaflet";
 import L from "leaflet";
-import { collection, onSnapshot, doc, setDoc, deleteDoc } from "firebase/firestore";
-import { db } from "../lib/firebase";
-import { EditVillageModal } from "./EditVillageModal";
+import {
+  collection,
+  onSnapshot,
+  doc,
+  setDoc,
+  deleteDoc,
+} from "firebase/firestore";
+import { db } from "../../services/firebase";
+import { EditVillageModal } from "../../components/modals/EditVillageModal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FiPlus, FiCheckCircle } from "react-icons/fi";
@@ -36,7 +48,8 @@ const iconUrls = {
 
 function createIcon(status: string) {
   return new L.Icon({
-    iconUrl: iconUrls[status as keyof typeof iconUrls] || iconUrls["not-visited"],
+    iconUrl:
+      iconUrls[status as keyof typeof iconUrls] || iconUrls["not-visited"],
     iconSize: [25, 41],
     iconAnchor: [12, 41],
   });
@@ -45,14 +58,16 @@ function createIcon(status: string) {
 interface Props {
   villages: Village[];
   search: string;
-  filter: 'all' | 'visited' | 'planned' | 'not-visited';
+  filter: "all" | "visited" | "planned" | "not-visited";
 }
 
 export default function Map({ villages, search, filter }: Props) {
   const [selectedVillage, setSelectedVillage] = useState<Village | null>(null);
   const [editingVillage, setEditingVillage] = useState<Village | null>(null);
   const [addingVillage, setAddingVillage] = useState(false);
-  const [newVillageCoords, setNewVillageCoords] = useState<[number, number] | null>(null);
+  const [newVillageCoords, setNewVillageCoords] = useState<
+    [number, number] | null
+  >(null);
   const [villagesState, setVillagesState] = useState<Village[]>([]);
 
   // Firestore live sync
@@ -69,9 +84,9 @@ export default function Map({ villages, search, filter }: Props) {
   }, []);
 
   // Filter villages for display
-  const displayVillages = villagesState.filter(v => {
+  const displayVillages = villagesState.filter((v) => {
     const matchSearch = v.name.toLowerCase().includes(search.toLowerCase());
-    const matchFilter = filter === 'all' || v.status === filter;
+    const matchFilter = filter === "all" || v.status === filter;
     return matchSearch && matchFilter;
   });
 
@@ -82,7 +97,10 @@ export default function Map({ villages, search, filter }: Props) {
 
   // Save handler for add/edit
   const handleSaveVillage = async (updatedVillage: Village) => {
-    await setDoc(doc(db, "villages", updatedVillage.id.toString()), updatedVillage);
+    await setDoc(
+      doc(db, "villages", updatedVillage.id.toString()),
+      updatedVillage
+    );
     setEditingVillage(null);
     setSelectedVillage(updatedVillage);
     toast.success("Village updated successfully");
@@ -100,7 +118,11 @@ export default function Map({ villages, search, filter }: Props) {
   };
 
   // Component to handle map click for adding a new village
-  function AddVillageOnMap({ onSelect }: { onSelect: (coords: [number, number]) => void }) {
+  function AddVillageOnMap({
+    onSelect,
+  }: {
+    onSelect: (coords: [number, number]) => void;
+  }) {
     useMapEvent("click", (e) => {
       if (addingVillage) {
         onSelect([e.latlng.lat, e.latlng.lng]);
@@ -129,7 +151,9 @@ export default function Map({ villages, search, filter }: Props) {
       <MapContainer
         center={[22.68411, 77.26887]}
         zoom={11}
-        className={`h-screen w-full z-10 ${addingVillage && !newVillageCoords ? "cursor-pin" : ""}`}
+        className={`h-screen w-full z-10 ${
+          addingVillage && !newVillageCoords ? "cursor-pin" : ""
+        }`}
       >
         <TileLayer
           // attribution='&copy; OpenStreetMap contributors'
@@ -189,7 +213,11 @@ export default function Map({ villages, search, filter }: Props) {
                   <button
                     className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
                     onClick={() => {
-                      if (window.confirm("Are you sure you want to delete this village?")) {
+                      if (
+                        window.confirm(
+                          "Are you sure you want to delete this village?"
+                        )
+                      ) {
                         handleDeleteVillage(village.id);
                       }
                     }}
@@ -227,7 +255,10 @@ export default function Map({ villages, search, filter }: Props) {
             setNewVillageCoords(null);
           }}
           onSave={async (newVillage) => {
-            await setDoc(doc(db, "villages", newVillage.id.toString()), newVillage);
+            await setDoc(
+              doc(db, "villages", newVillage.id.toString()),
+              newVillage
+            );
             setAddingVillage(false);
             setNewVillageCoords(null);
             // toast.success("Village added successfully"); // Removed toast
@@ -243,6 +274,6 @@ export default function Map({ villages, search, filter }: Props) {
         }
         style={{ top: "4em", left: "2em", minWidth: 0, width: "auto", maxWidth: "90vw" }}
       /> */}
-      </>
+    </>
   );
 }

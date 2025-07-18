@@ -1,5 +1,5 @@
-import React from 'react';
-import { Village } from '../../data/types/village';
+import React from "react";
+import { Village } from "../../../types/village";
 
 export default function ActivityLog({ villages }: { villages: Village[] }) {
   const recent = villages

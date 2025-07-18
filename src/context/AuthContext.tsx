@@ -7,7 +7,7 @@ import {
   signOut,
   User,
 } from "firebase/auth";
-import { app } from '../../lib/firebase';
+import { app } from "../services/firebase";
 
 const auth = getAuth(app);
 
@@ -53,5 +53,3 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     </AuthContext.Provider>
   );
 };
-
-

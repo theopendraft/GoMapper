@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { collection, onSnapshot, setDoc, doc } from "firebase/firestore";
-import { db } from "./../lib/firebase";
-import { Village } from "./../data/types/village";
-import ParentVillageCard from "./../components/modals/ParentVillageCard";
+import { db } from "../services/firebase";
+import { Village } from "../types/village";
+import ParentVillageCard from "../Parents/ParentVillageCard";
 import { Input } from "./../components/ui/input";
 
 export default function ParentVillagePage() {

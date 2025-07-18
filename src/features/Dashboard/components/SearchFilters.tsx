@@ -1,6 +1,6 @@
-import React from 'react';
-import { Input } from '../../components/ui/input';
-import { Button } from '../../components/ui/button';
+import React from "react";
+import { Input } from "../../ui/input";
+import { Button } from "../../ui/button";
 
 export default function SearchFilters({
   search,
@@ -10,8 +10,8 @@ export default function SearchFilters({
 }: {
   search: string;
   setSearch: (v: string) => void;
-  filter: 'all' | 'visited' | 'planned' | 'not_visited';
-  setFilter: (v: 'all' | 'visited' | 'planned' | 'not_visited') => void;
+  filter: "all" | "visited" | "planned" | "not_visited";
+  setFilter: (v: "all" | "visited" | "planned" | "not_visited") => void;
 }) {
   return (
     <div className="bg-white p-4 rounded shadow mb-4">
@@ -21,13 +21,13 @@ export default function SearchFilters({
         onChange={(e) => setSearch(e.target.value)}
       />
       <div className="mt-2 space-x-2">
-        {['all', 'visited', 'planned', 'not_visited'].map((s) => (
+        {["all", "visited", "planned", "not_visited"].map((s) => (
           <Button
             key={s}
-            variant={filter === s ? 'default' : 'outline'}
+            variant={filter === s ? "default" : "outline"}
             onClick={() => setFilter(s as any)}
           >
-            {s.replace('_', ' ').toUpperCase()}
+            {s.replace("_", " ").toUpperCase()}
           </Button>
         ))}
       </div>

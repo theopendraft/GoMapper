@@ -3,10 +3,9 @@ import { Link, useLocation } from "react-router-dom";
 import { AiOutlineDashboard } from "react-icons/ai";
 import { RiMapPin5Line } from "react-icons/ri";
 import { LuContactRound } from "react-icons/lu";
-import { useAuth } from "../components/context/AuthContext";
-import { cn } from './../lib/utils';
+import { useAuth } from "../context/AuthContext";
+import { cn } from "../utils/utils";
 import ProfileDropdown from "./ui/ProfileDropdown";
-
 
 const navLinks = [
   { name: "Map View", path: "/map", Icon: RiMapPin5Line },
@@ -22,7 +21,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Top Navbar */}
       <nav className="w-full bg-white shadow-sm fixed top-0 z-50 h-14 flex items-center justify-between px-4">
-        <Link to="/" className="text-xl font-bold text-blue-700">MAPPER</Link>
+        <Link to="/" className="text-xl font-bold text-blue-700">
+          MAPPER
+        </Link>
 
         <div className="flex items-center gap-4">
           {/* Desktop Navigation */}

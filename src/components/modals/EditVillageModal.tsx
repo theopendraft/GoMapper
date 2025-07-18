@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
-import { Village, Parent } from "./Map";
+import { Village, Parent } from "../../Map/components/Map";
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "../lib/firebase"; // adjust path if needed
+import { db } from "../../services/firebase"; // adjust path if needed
 
 function isValidPhoneNumber(phone: string) {
   const phoneDigits = phone.replace(/\D/g, "");
@@ -21,8 +21,12 @@ export function EditVillageModal({
   const [villageName, setVillageName] = useState(village.name);
   const [status, setStatus] = useState(village.status);
   const [notes, setNotes] = useState(village.notes || "");
-  const [lastInteraction, setLastInteraction] = useState(village.lastInteraction || "");
-  const [nextVisitTarget, setNextVisitTarget] = useState(village.nextVisitTarget || "");
+  const [lastInteraction, setLastInteraction] = useState(
+    village.lastInteraction || ""
+  );
+  const [nextVisitTarget, setNextVisitTarget] = useState(
+    village.nextVisitTarget || ""
+  );
   const [parents, setParents] = useState<Parent[]>(village.parents || []);
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
 
@@ -76,16 +80,17 @@ export function EditVillageModal({
   });
 
   // Overall form validity
-  const canSave =
-    isValidVillageName &&
-    isValidStatus &&
-    areParentsValid;
+  const canSave = isValidVillageName && isValidStatus && areParentsValid;
 
   const markTouched = (field: string) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
   };
 
-  const handleParentChange = (index: number, field: keyof Parent, value: string) => {
+  const handleParentChange = (
+    index: number,
+    field: keyof Parent,
+    value: string
+  ) => {
     const updatedParents = [...parents];
     updatedParents[index] = { ...updatedParents[index], [field]: value };
     setParents(updatedParents);
@@ -150,13 +155,17 @@ export function EditVillageModal({
               onChange={(e) => setVillageName(e.target.value)}
               onBlur={() => markTouched("villageName")}
               className={`border rounded w-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                touched.villageName && !validateVillageName() ? "border-red-600" : "border-gray-300"
+                touched.villageName && !validateVillageName()
+                  ? "border-red-600"
+                  : "border-gray-300"
               }`}
               autoComplete="address-level2"
               required
             />
             {touched.villageName && !validateVillageName() && (
-              <p className="text-red-600 text-sm mt-1">Village name is required.</p>
+              <p className="text-red-600 text-sm mt-1">
+                Village name is required.
+              </p>
             )}
           </div>
 
@@ -171,7 +180,9 @@ export function EditVillageModal({
               onChange={(e) => setStatus(e.target.value)}
               onBlur={() => markTouched("status")}
               className={`border rounded w-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                touched.status && !validateStatus() ? "border-red-600" : "border-gray-300"
+                touched.status && !validateStatus()
+                  ? "border-red-600"
+                  : "border-gray-300"
               }`}
               required
             >
@@ -246,18 +257,24 @@ export function EditVillageModal({
                     id={`parent-name-${index}`}
                     type="text"
                     value={parent.name}
-                    onChange={(e) => handleParentChange(index, "name", e.target.value)}
+                    onChange={(e) =>
+                      handleParentChange(index, "name", e.target.value)
+                    }
                     onBlur={() => markTouched(`parentName${index}`)}
                     className={`border rounded w-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300 ${
-                      touched[`parentName${index}`] && !validateParentName(parent.name)
+                      touched[`parentName${index}`] &&
+                      !validateParentName(parent.name)
                         ? "border-red-600"
                         : ""
                     }`}
                     placeholder="Enter parent name"
                   />
-                  {touched[`parentName${index}`] && !validateParentName(parent.name) && (
-                    <p className="text-red-600 text-sm mt-1">Parent name is required.</p>
-                  )}
+                  {touched[`parentName${index}`] &&
+                    !validateParentName(parent.name) && (
+                      <p className="text-red-600 text-sm mt-1">
+                        Parent name is required.
+                      </p>
+                    )}
                 </div>
                 <div className="flex-1">
                   <label
@@ -270,7 +287,9 @@ export function EditVillageModal({
                     id={`parent-contact-${index}`}
                     type="text"
                     value={parent.contact}
-                    onChange={(e) => handleParentChange(index, "contact", e.target.value)}
+                    onChange={(e) =>
+                      handleParentChange(index, "contact", e.target.value)
+                    }
                     onBlur={() => markTouched(`parentContact${index}`)}
                     className={`border rounded w-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300 ${
                       touched[`parentContact${index}`] &&
@@ -280,11 +299,12 @@ export function EditVillageModal({
                     }`}
                     placeholder="Enter valid contact number"
                   />
-                  {touched[`parentContact${index}`] && !validateParentContact(parent.contact) && (
-                    <p className="text-red-600 text-sm mt-1">
-                      Invalid phone number format.
-                    </p>
-                  )}
+                  {touched[`parentContact${index}`] &&
+                    !validateParentContact(parent.contact) && (
+                      <p className="text-red-600 text-sm mt-1">
+                        Invalid phone number format.
+                      </p>
+                    )}
                 </div>
                 <button
                   type="button"
@@ -295,7 +315,9 @@ export function EditVillageModal({
                   &times;
                 </button>
                 {parentErrors[index] && (
-                  <span className="text-xs text-red-600">{parentErrors[index]}</span>
+                  <span className="text-xs text-red-600">
+                    {parentErrors[index]}
+                  </span>
                 )}
               </div>
             ))}
@@ -321,7 +343,9 @@ export function EditVillageModal({
               type="submit"
               disabled={!canSave}
               className={`px-4 py-2 rounded text-white ${
-                canSave ? "bg-blue-600 hover:bg-blue-700" : "bg-blue-300 cursor-not-allowed"
+                canSave
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-blue-300 cursor-not-allowed"
               }`}
             >
               Save

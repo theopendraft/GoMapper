@@ -1,12 +1,13 @@
-import React from 'react';
-import { Village } from '../../data/types/village';
+import React from "react";
+import { Village } from "../../../types/village";
 
 export default function VisitCalendar({ villages }: { villages: Village[] }) {
   const upcoming = villages
     .filter((v) => v.nextVisitTarget)
     .sort(
       (a, b) =>
-        new Date(a.nextVisitTarget!).getTime() - new Date(b.nextVisitTarget!).getTime()
+        new Date(a.nextVisitTarget!).getTime() -
+        new Date(b.nextVisitTarget!).getTime()
     )
     .slice(0, 5);
 

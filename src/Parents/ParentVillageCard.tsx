@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Village, ExtendedParent } from "../../data/types/village";
+import { Village, ExtendedParent } from "../types/village";
 import { FiTrash2, FiEdit, FiSave, FiX } from "react-icons/fi";
 
 type Props = {
@@ -35,7 +35,13 @@ export default function ParentVillageCard({ village, onUpdate }: Props) {
   const addNewParent = () => {
     const updated = [
       ...(localVillage.parents || []),
-      { name: "", contact: "", lastInteraction: "", nextVisitTarget: "", notes: "" } as ExtendedParent,
+      {
+        name: "",
+        contact: "",
+        lastInteraction: "",
+        nextVisitTarget: "",
+        notes: "",
+      } as ExtendedParent,
     ];
     setLocalVillage({ ...localVillage, parents: updated });
     setEditingIndex(updated.length - 1);
@@ -81,7 +87,10 @@ export default function ParentVillageCard({ village, onUpdate }: Props) {
                       type="text"
                       value={parent.contact}
                       onChange={(e) =>
-                        updateParent(index, { ...parent, contact: e.target.value })
+                        updateParent(index, {
+                          ...parent,
+                          contact: e.target.value,
+                        })
                       }
                       disabled={!isEditing}
                       className="w-full border p-2 rounded text-sm"
@@ -93,7 +102,9 @@ export default function ParentVillageCard({ village, onUpdate }: Props) {
                   <>
                     <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <div>
-                        <label className="text-sm font-medium">Last Interaction</label>
+                        <label className="text-sm font-medium">
+                          Last Interaction
+                        </label>
                         <input
                           type="date"
                           value={parent.lastInteraction || ""}
@@ -107,7 +118,9 @@ export default function ParentVillageCard({ village, onUpdate }: Props) {
                         />
                       </div>
                       <div>
-                        <label className="text-sm font-medium">Next Visit</label>
+                        <label className="text-sm font-medium">
+                          Next Visit
+                        </label>
                         <input
                           type="date"
                           value={parent.nextVisitTarget || ""}

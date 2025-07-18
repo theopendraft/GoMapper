@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useAuth } from "../../components/context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import {
   FiUser,
   FiLogOut,
@@ -40,14 +40,15 @@ export default function ProfileDropdown() {
         className="w-9 h-9 rounded-full border bg-gray-200 hover:ring-2 ring-blue-400 overflow-hidden"
       >
         <img
-          src={`https://ui-avatars.com/api/?name=${user.displayName || "U"}&background=0D8ABC&color=fff`}
+          src={`https://ui-avatars.com/api/?name=${
+            user.displayName || "U"
+          }&background=0D8ABC&color=fff`}
           alt="avatar"
           className="w-full h-full object-cover"
         />
       </button>
 
       {open && (
-        
         <div className="absolute right-0 mt-2 w-60 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 text-sm z-[1001] animate-fadeIn">
           <div className="px-4 py-2 font-semibold text-gray-800 flex items-center gap-2 border-b z-[1001]">
             <FiUser />

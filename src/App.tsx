@@ -1,11 +1,16 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Layout from "./components/Layout";
-import Dashboard from "./pages/dashboard";
-import MapPage from "./pages/map";
-import ParentsPage from "./pages/parents";
-import LoginPage from "./pages/login";
-import SignupPage from "./pages/signup";
-import { AuthProvider } from "./components/context/AuthContext";
+import Dashboard from "./pages/dashboardPage";
+import MapPage from "./pages/mapPage";
+import ParentsPage from "./pages/parentsPage";
+import LoginPage from "./pages/loginPage";
+import SignupPage from "./pages/signupPage";
+import { AuthProvider } from "./context/AuthContext";
 
 export default function App() {
   return (
