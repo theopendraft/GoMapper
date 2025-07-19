@@ -1,11 +1,11 @@
 import React from "react";
 import { Village } from "../../../types/village";
-import { Badge } from "../../ui/badge";
+import { Badge } from "../../../components/ui/badge";
 
 export default function VillageList({ villages }: { villages: Village[] }) {
   return (
     <div className="bg-white p-4 rounded shadow">
-      <h3 className="text-lg font-semibold mb-4">All Villages</h3>
+      <h3 className="text-lg font-semibold mb-4">All Pins</h3>
       <ul className="space-y-2 max-h-[300px] overflow-y-auto">
         {villages.map((v) => (
           <li

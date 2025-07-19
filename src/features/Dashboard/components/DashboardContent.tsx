@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import Map from "../../../Map/components/Map";
 import villagesData from "../../../data/villages.json";
 import type { Village } from "../../../Map/components/Map";
-import { Input } from "../../ui/input";
-import { Button } from "../../ui/button";
-import { Badge } from "../../ui/badge";
+import { Input } from "../../../components/ui/input";
+import { Button } from "../../../components/ui/button";
+import { Badge } from "../../../components/ui/badge";
 
 export default function VillageDashboardPanel() {
   const allVillages: Village[] = villagesData as Village[];
@@ -44,7 +44,7 @@ export default function VillageDashboardPanel() {
         {/* Search */}
         <Input
           type="text"
-          placeholder="Search village..."
+          placeholder="Search Pins..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />

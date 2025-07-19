@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { Village } from "../types/village";
-import StatsCards from "../components/Dashboard/components/StatsCards";
-import SearchFilters from "../components/Dashboard/components/SearchFilters";
-import VillageChart from "../components/Dashboard/components/VillageChart";
-import VisitCalendar from "../components/Dashboard/components/VisitCalendar";
-import ActivityLog from "../components/Dashboard/components/ActivityLog";
-import VillageList from "../components/Dashboard/components/VillageList";
+import StatsCards from "../features/Dashboard/components/StatsCards";
+import SearchFilters from "../features/Dashboard/components/SearchFilters";
+import VillageChart from "../features/Dashboard/components/VillageChart";
+import VisitCalendar from "../features/Dashboard/components/VisitCalendar";
+import ActivityLog from "../features/Dashboard/components/ActivityLog";
+import VillageList from "../features/Dashboard/components/VillageList";
 
 export default function DashboardPage() {
   const [villages, setVillages] = useState<Village[]>([]);

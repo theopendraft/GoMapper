@@ -252,11 +252,11 @@ export default function MapSummaryPanel({
           <div className="relative w-full">
             <Input
               type="search"
-              placeholder="Search villages..."
+              placeholder="Search Pins..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pr-10 bg-gray-50 placeholder-gray-400 text-gray-900 rounded-xl border border-gray-300 shadow-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition"
-              aria-label="Search villages"
+              aria-label="Search Pins"
               spellCheck={false}
               autoComplete="off"
             />
@@ -364,7 +364,7 @@ export default function MapSummaryPanel({
               Showing{" "}
               <span className="font-semibold">{filteredVillages.length}</span>{" "}
               of <span className="font-semibold">{villages.length}</span>{" "}
-              villages
+              Pins
             </div>
 
             <ul className="overflow-y-auto space-y-3 max-h-full flex-1 min-h-0">

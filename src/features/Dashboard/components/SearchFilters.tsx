@@ -1,6 +1,6 @@
 import React from "react";
-import { Input } from "../../ui/input";
-import { Button } from "../../ui/button";
+import { Input } from "../../../components/ui/input";
+import { Button } from "../../../components/ui/button";
 
 export default function SearchFilters({
   search,
@@ -16,7 +16,7 @@ export default function SearchFilters({
   return (
     <div className="bg-white p-4 rounded shadow mb-4">
       <Input
-        placeholder="Search village..."
+        placeholder="Search Pins..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />

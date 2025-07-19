@@ -10,7 +10,7 @@ import ProfileDropdown from "./ui/ProfileDropdown";
 const navLinks = [
   { name: "Map View", path: "/map", Icon: RiMapPin5Line },
   { name: "Dashboard", path: "/dashboard", Icon: AiOutlineDashboard },
-  { name: "Parents", path: "/parents", Icon: LuContactRound },
+  { name: "Contacts", path: "/parents", Icon: LuContactRound },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {

@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
@@ -15,4 +15,12 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 
-export {app} ;
+// Utility function to get pins collection for a specific project
+export const getProjectPinsCollection = (projectId: string) => {
+  return collection(db, "projects", projectId, "pins");
+};
+
+// Re-export Firestore functions for convenience
+export { collection, doc, setDoc, deleteDoc, onSnapshot };
+
+export { app };
