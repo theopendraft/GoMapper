@@ -52,51 +52,52 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({
         <Link to="/" className="text-xl font-bold text-blue-700">
           MAPPER
         </Link>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 w-2/3 justify-between">
           <button
             onClick={handleOpenSearchModal}
-            className=" bg-blue-600 text-white hover:bg-blue-700 font-bold py-2 px-2 rounded-full flex items-center transition-colors"
+            className=" bg-blue-50 text-gray-400 hover:bg-blue-700 font-bold ml-28 py-2 px-4 pr-[300px] rounded-full flex items-center transition-colors gap-2 float-left border border-blue-300 hover:border-blue-500"
           >
-            <FiSearch/>
+            <FiSearch className="w-5 h-5 gap-2 text-gray-600" /> Search
           </button>
-
-          <div className="hidden sm:flex gap-2">
-            {navLinks.map(({ name, path, Icon }) => (
-              <Link
-                key={name}
-                to={path}
-                className={cn(
-                  "flex items-center gap-1 px-3 py-1 rounded hover:bg-blue-50 transition",
-                  location.pathname === path
-                    ? "bg-blue-100 text-blue-700 font-semibold"
-                    : "text-gray-700"
-                )}
-              >
-                <Icon className="w-5 h-5" />
-                <span>{name}</span>
-              </Link>
-            ))}
-          </div>
-
-          {/* User Info */}
-          {currentUser ? (
-            <ProfileDropdown />
-          ) : (
-            <div className="flex gap-2 z-[999999]">
-              <Link
-                to="/login"
-                className="text-sm py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Login
-              </Link>
-              <Link
-                to="/signup"
-                className="text-sm py-2 px-4 border text-blue-700 rounded hover:bg-gray-100"
-              >
-                Signup
-              </Link>
+          <div className="float-right flex items-center gap-2">
+            <div className="hidden sm:flex gap-2">
+              {navLinks.map(({ name, path, Icon }) => (
+                <Link
+                  key={name}
+                  to={path}
+                  className={cn(
+                    "flex items-center gap-1 px-3 py-1 rounded hover:bg-blue-50 transition",
+                    location.pathname === path
+                      ? "bg-blue-100 text-blue-700 font-semibold"
+                      : "text-gray-700"
+                  )}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span>{name}</span>
+                </Link>
+              ))}
             </div>
-          )}
+
+            {/* User Info */}
+            {currentUser ? (
+              <ProfileDropdown />
+            ) : (
+              <div className="flex gap-2 z-[999999]">
+                <Link
+                  to="/login"
+                  className="text-sm py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="text-sm py-2 px-4 border text-blue-700 rounded hover:bg-gray-100"
+                >
+                  Signup
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
 

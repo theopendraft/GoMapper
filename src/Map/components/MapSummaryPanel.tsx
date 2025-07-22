@@ -222,6 +222,7 @@ export default function MapSummaryPanel({
         duration-300 ease-in-out
         fixed bottom-[165px] md:bottom-[90px] right-3
         z-50
+        
         ${
           panelOpen
             ? "p-5 h-[80vh] w-12 md:w-[360px] rounded-xl " // Expanded state
@@ -234,10 +235,10 @@ export default function MapSummaryPanel({
         width: panelOpen
           ? (panelRef.current?.offsetWidth || 360) + "px" // Use optional chaining (?.) and a fallback value (360)
           : "3.5rem", // Default to 3.5rem (56px) when collapsed
-        minWidth: panelOpen ? "220px" : "3.5rem",
-        maxWidth: panelOpen ? "600px" : "3.5rem",
+        minWidth: panelOpen ? "300px" : "3.5rem",
+        maxWidth: panelOpen ? "900px" : "3.5rem",
         minHeight: panelOpen ? "300px" : "3.5rem",
-        height: panelOpen ? "80vh" : "3.5rem", // Control height for collapse
+        height: panelOpen ? "70vh" : "3.5rem", // Control height for collapse
         userSelect: isResizing.current ? "none" : "auto",
         display: "flex", // Keep display flex for alignment
       }}
