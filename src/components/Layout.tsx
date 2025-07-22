@@ -1,10 +1,15 @@
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
+// src/components/Layout.tsx
+import React, { useState, useCallback } from "react";
+import { Link } from "react-router-dom";
+import SearchModal from "./modals/SearchModal";
+import { FiSearch } from "react-icons/fi";
 import { AiOutlineDashboard } from "react-icons/ai";
 import { RiMapPin5Line } from "react-icons/ri";
 import { LuContactRound } from "react-icons/lu";
-import { useAuth } from "../context/AuthContext";
 import { cn } from "../utils/utils";
+// FIX: Change AuthContextType to AuthContextProps
+import { AuthContextProps, useAuth } from "../context/AuthContext"; // Corrected import
+import { MapSearchProvider, useMapSearch } from "../context/MapSearchContext";
 import ProfileDropdown from "./ui/ProfileDropdown";
 
 const navLinks = [
@@ -13,20 +18,48 @@ const navLinks = [
   { name: "Contacts", path: "/parents", Icon: LuContactRound },
 ];
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  const location = useLocation();
-  const { user } = useAuth();
+interface LayoutProps {
+  children: React.ReactNode;
+}
+
+// LayoutContent uses the context
+const LayoutContent: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  // FIX: Use AuthContextProps for the type assertion
+  const { user: currentUser, logout } = useAuth() as AuthContextProps; // Use 'user' from context, alias to 'currentUser'
+
+  const {
+    isSearchModalOpen,
+    setIsSearchModalOpen,
+    isMapSearchControlVisible,
+    locationFoundForModalDisplay,
+    setLocationFoundForModalDisplay,
+    handleLocationSelectedFromMapSearchAndCloseModal, // Will be passed to MapPage
+    handleClearLocationFound,
+    triggerMapSearchControlVisibility, // Will be passed to SearchModal
+  } = useMapSearch();
+
+  // Callback to open the search modal
+  const handleOpenSearchModal = useCallback(() => {
+    setIsSearchModalOpen(true);
+    setLocationFoundForModalDisplay(null); // Clear previous messages
+  }, [setIsSearchModalOpen, setLocationFoundForModalDisplay]); // Add dependencies
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* Top Navbar */}
-      <nav className="w-full bg-white shadow-sm fixed top-0 z-50 h-14 flex items-center justify-between px-4">
+      <nav className="bg-white p-4 flex justify-between top-0 items-center z-20 shadow-sm ">
         <Link to="/" className="text-xl font-bold text-blue-700">
           MAPPER
         </Link>
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={handleOpenSearchModal}
+            className=" bg-blue-600 text-white hover:bg-blue-700 font-bold py-2 px-2 rounded-full flex items-center transition-colors"
+          >
+            <FiSearch/>
+          </button>
 
-        <div className="flex items-center gap-4">
-          {/* Desktop Navigation */}
           <div className="hidden sm:flex gap-2">
             {navLinks.map(({ name, path, Icon }) => (
               <Link
@@ -46,19 +79,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* User Info */}
-          {user ? (
+          {currentUser ? (
             <ProfileDropdown />
           ) : (
             <div className="flex gap-2 z-[999999]">
               <Link
                 to="/login"
-                className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="text-sm py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700"
               >
                 Login
               </Link>
               <Link
                 to="/signup"
-                className="text-sm px-3 py-1 border text-blue-700 rounded hover:bg-gray-100"
+                className="text-sm py-2 px-4 border text-blue-700 rounded hover:bg-gray-100"
               >
                 Signup
               </Link>
@@ -67,8 +100,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </nav>
 
-      {/* Main Content */}
-      <main className="flex-1 ">{children}</main>
+      <main className="flex-grow">
+        {children} {/* Children (Routes) will consume context */}
+      </main>
 
       {/* Bottom Mobile Navigation */}
       <nav className="fixed bottom-3 left-2 right-2  rounded-full sm:hidden z-50 bg-white border shadow-md flex justify-around py-2 px-3">
@@ -88,6 +122,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Link>
         ))}
       </nav>
+
+      {/* Render the SearchModal here, controlled by Layout's state from context */}
+      <SearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        onStartSearch={triggerMapSearchControlVisibility.bind(null, true)}
+        locationFoundForSelection={locationFoundForModalDisplay}
+        onClearLocationFound={handleClearLocationFound}
+      />
     </div>
+  );
+};
+
+// Layout component wraps content with MapSearchProvider
+export default function Layout({ children }: LayoutProps) {
+  return (
+    <MapSearchProvider>
+      <LayoutContent>{children}</LayoutContent>
+    </MapSearchProvider>
   );
 }

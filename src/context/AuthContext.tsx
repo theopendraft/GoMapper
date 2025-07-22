@@ -11,7 +11,7 @@ import { app } from "../services/firebase";
 
 const auth = getAuth(app);
 
-interface AuthContextProps {
+export interface AuthContextProps {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;

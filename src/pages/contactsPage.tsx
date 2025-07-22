@@ -3,10 +3,8 @@ import { collection, onSnapshot, setDoc, doc } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { Village } from "../types/village";
 import ParentVillageCard from "../Parents/ParentVillageCard";
-import { Input } from "./../components/ui/input";
+import { Input } from "../components/ui/input";
 import SearchFilters from "../features/Dashboard/components/SearchFilters";
-
-
 
 export default function DashboardPage() {
   const [villages, setVillages] = useState<Village[]>([]);
@@ -27,8 +25,6 @@ export default function DashboardPage() {
     return () => unsubscribe();
   }, []);
 
-  
-
   const updateVillage = async (updated: Village) => {
     await setDoc(doc(db, "villages", updated.id.toString()), updated);
   };
@@ -46,11 +42,11 @@ export default function DashboardPage() {
 
       {/* 🔍 Global Search + Sort */}
       <SearchFilters
-              search={search}
-              setSearch={setSearch}
-              filter={filter}
-              setFilter={setFilter}
-            />
+        search={search}
+        setSearch={setSearch}
+        filter={filter}
+        setFilter={setFilter}
+      />
 
       {/* 📋 Results */}
       <div className="space-y-4">

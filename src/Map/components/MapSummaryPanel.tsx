@@ -1,6 +1,8 @@
+// src/components/MapSummaryPanel.tsx
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../services/firebase";
+// Assuming Village is exported from Map.tsx, adjust path if needed
 import type { Village } from "./Map";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
@@ -8,12 +10,9 @@ import {
   FiSearch,
   FiX,
   FiDownload,
-  FiPlus,
-  FiChevronRight,
-  FiChevronLeft,
-  FiMenu,
+  // FiPlus, // Not used for actions in this panel now
 } from "react-icons/fi";
-import { TfiMenuAlt } from "react-icons/tfi";
+import { TfiMenuAlt } from "react-icons/tfi"; // This icon is used for toggle
 import { useLocation } from "react-router-dom";
 
 type Props = {
@@ -23,9 +22,12 @@ type Props = {
   setFilter: React.Dispatch<
     React.SetStateAction<"all" | "visited" | "planned" | "not-visited">
   >;
-  onAddVillage?: () => void;
-  isOpen: boolean;
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  // onAddVillage?: () => void; // This prop seems commented out in usage, remove if not needed
+  isOpen: boolean; // Prop from parent (MapWithPanel)
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>; // Callback to update parent
+  // If MapSummaryPanel needs to display villages that are specific to the current map view
+  // or filtered differently than Map.tsx, you might pass a `villages` prop here,
+  // but currently, it fetches its own.
 };
 
 export default function MapSummaryPanel({
@@ -33,14 +35,15 @@ export default function MapSummaryPanel({
   setSearch,
   filter,
   setFilter,
-  onAddVillage,
-  isOpen,
-  setIsOpen,
+  // onAddVillage, // Remove if not used
+  isOpen, // Prop from parent
+  setIsOpen, // Callback to parent
 }: Props) {
   const [villages, setVillages] = useState<Village[]>([]);
   const [showAll, setShowAll] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [panelOpen, setPanelOpen] = useState(isOpen); // Local state for panel open/close
+  // Synchronize local panelOpen state with prop `isOpen`
+  const [panelOpen, setPanelOpen] = useState(isOpen);
 
   // Width resize state & refs
   const panelRef = useRef<HTMLDivElement>(null);
@@ -50,6 +53,13 @@ export default function MapSummaryPanel({
   const startWidth = useRef(0);
 
   const location = useLocation();
+
+  // EFFECT 1: Synchronize local `panelOpen` state with the `isOpen` prop
+  // This ensures that external changes to `isOpen` (e.g., from MapPage) reflect in the panel
+  useEffect(() => {
+    setPanelOpen(isOpen);
+  }, [isOpen]);
+
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "villages"), (snap) => {
@@ -62,23 +72,27 @@ export default function MapSummaryPanel({
     });
     return () => {
       unsub();
-      setLoading(false);
     };
   }, []);
 
-  // Close summary panel when navigating to /map
+  // EFFECT 2: Close summary panel when navigating away from /map
+  // or initial load on /map (ensure it's closed by default)
   useEffect(() => {
-    if (location.pathname === "/map") {
-      setPanelOpen(false);
+    if (location.pathname !== "/map") { // If we navigate away from the map page
+        setPanelOpen(false);
+        setIsOpen(false);
     }
-  }, [location.pathname]);
+    // If you want it always closed when first landing on /map,
+    // you might add a check here, but the `isOpen` prop already controls initial state.
+  }, [location.pathname, setIsOpen]);
+
 
   // Resize handlers
   useEffect(() => {
     function onMouseMove(e: MouseEvent) {
       if (!isResizing.current || !panelRef.current) return;
       const dx = e.clientX - startX.current;
-      const newWidth = Math.min(Math.max(startWidth.current + dx, 220), 600);
+      const newWidth = Math.min(Math.max(startWidth.current + dx, 220), 600); // Min 220px, Max 600px
       panelRef.current.style.width = `${newWidth}px`;
     }
     function onMouseUp() {
@@ -95,10 +109,10 @@ export default function MapSummaryPanel({
   }, []);
 
   function onMouseDown(e: React.MouseEvent) {
-    if (!panelRef.current) return;
+    if (!panelRef.current) return; // <-- Existing null check
     isResizing.current = true;
     startX.current = e.clientX;
-    startWidth.current = panelRef.current.offsetWidth;
+    startWidth.current = panelRef.current.offsetWidth; // <-- This line is fine because of the `if` above
     document.body.style.cursor = "ew-resize";
     document.body.style.userSelect = "none";
   }
@@ -161,19 +175,25 @@ export default function MapSummaryPanel({
   }
 
   const togglePanel = () => {
-    setPanelOpen(!panelOpen);
-    setIsOpen(!panelOpen); // Also update the parent state
+    setPanelOpen((prev) => {
+      const newState = !prev;
+      setIsOpen(newState); // Crucial: Update the parent state
+      return newState;
+    });
   };
 
-  // Close panel on outside click
+  // EFFECT 3: Close panel on outside click
   useEffect(() => {
-    if (!panelOpen) return;
+    // Only add listener if panel is open and not currently resizing
+    if (!panelOpen) return; // Only attach listener when panel is open
 
     function handleClickOutside(event: MouseEvent) {
-      if (
-        panelRef.current &&
-        !panelRef.current.contains(event.target as Node)
-      ) {
+      // Check if click is outside the panelRef and not on the toggle button itself (if it's outside panelRef)
+      // And ensure we are not currently resizing the panel
+      const isClickOutsidePanel = panelRef.current && !panelRef.current.contains(event.target as Node);
+      const isClickOnToggleButton = (event.target as HTMLElement).closest('button[aria-label="Open Summary Panel"], button[aria-label="Close Summary Panel"]');
+
+      if (isClickOutsidePanel && !isResizing.current && !isClickOnToggleButton) {
         setPanelOpen(false);
         setIsOpen(false); // Close the panel in the parent component as well
       }
@@ -183,58 +203,58 @@ export default function MapSummaryPanel({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [panelOpen]);
+  }, [panelOpen, setIsOpen]); // Include setIsOpen in dependencies, and re-run when panelOpen changes
+
+  console.log("MapSummaryPanel - panelOpen:", panelOpen, "isOpen (prop):", isOpen);
+
 
   return (
     <aside
       ref={panelRef}
       className={`
         bg-white
-        border 
-        shadow-md
+        border
+        shadow-lg
         flex
         flex-col
         gap-6
-        overflow-y-auto
         transition-all
-        duration-450
-        ease-in-out
-        fixed bottom-40 md:bottom-[90px] right-3
+        duration-300 ease-in-out
+        fixed bottom-[165px] md:bottom-[90px] right-3
         z-50
         ${
           panelOpen
-            ? "p-5 h-[80vh] w-12 md:w-[360px] rounded-xl "
-            : "h-14 w-14 items-center justify-center p-0 rounded-full"
+            ? "p-5 h-[80vh] w-12 md:w-[360px] rounded-xl " // Expanded state
+            : "h-8 w-14 items-center justify-center p-0 rounded-full" // Collapsed state (circular button)
         }
+        ${!panelOpen ? "overflow-hidden" : "overflow-y-auto"}
       `}
       style={{
+        // FIX: Add a null check here for panelRef.current
+        width: panelOpen
+          ? (panelRef.current?.offsetWidth || 360) + "px" // Use optional chaining (?.) and a fallback value (360)
+          : "3.5rem", // Default to 3.5rem (56px) when collapsed
         minWidth: panelOpen ? "220px" : "3.5rem",
         maxWidth: panelOpen ? "600px" : "3.5rem",
         minHeight: panelOpen ? "300px" : "3.5rem",
+        height: panelOpen ? "80vh" : "3.5rem", // Control height for collapse
         userSelect: isResizing.current ? "none" : "auto",
-        display: "flex",
+        display: "flex", // Keep display flex for alignment
       }}
       aria-label="Map summary panel"
     >
       {/* Toggle Button */}
+      {/* Position the button correctly for both states */}
       <button
-        className={`transition-colors absolute ${
-          panelOpen ? "top-6 right-5" : "inset-0 m-auto"
-        }`}
+        className={`
+          transition-colors duration-300
+          absolute z-50 rounded-full
+          bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800
+          flex items-center justify-center
+          ${panelOpen ? "top-4 right-4 p-2" : "inset-0 m-auto w-14 h-14"}
+        `}
         onClick={togglePanel}
-        // onMouseEnter={() => { if (!isOpen) setIsOpen(true); }}
         aria-label={panelOpen ? "Close Summary Panel" : "Open Summary Panel"}
-        style={
-          !panelOpen
-            ? {
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                zIndex: 10000,
-              }
-            : {}
-        }
       >
         <TfiMenuAlt size={22} />
       </button>
@@ -242,7 +262,9 @@ export default function MapSummaryPanel({
       {panelOpen && (
         <>
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-4">
+            {" "}
+            {/* Added mt-4 to prevent overlap with button */}
             <h2 className="text-[15pt] font-semibold text-gray-900 tracking-tight select-none">
               Map Summary
             </h2>
@@ -338,15 +360,6 @@ export default function MapSummaryPanel({
 
           {/* Actions */}
           <div className="flex gap-2 mt-2 items-center justify-between">
-            {/* <Button
-              className="flex-1 flex items-center justify-center gap-2"
-              onClick={onAddVillage}
-              variant="default"
-              aria-label="Add a new village"
-              type="button"
-            >
-              <FiPlus /> Add Village
-            </Button> */}
             <Button
               className="flex-1 flex items-center justify-center gap-2"
               variant="outline"
@@ -363,8 +376,7 @@ export default function MapSummaryPanel({
             <div className="text-xs text-gray-500 mb-1 select-none">
               Showing{" "}
               <span className="font-semibold">{filteredVillages.length}</span>{" "}
-              of <span className="font-semibold">{villages.length}</span>{" "}
-              Pins
+              of <span className="font-semibold">{villages.length}</span> Pins
             </div>
 
             <ul className="overflow-y-auto space-y-3 max-h-full flex-1 min-h-0">
@@ -380,6 +392,7 @@ export default function MapSummaryPanel({
                 <li
                   className="text-gray-400 text-center py-6 select-none"
                   aria-live="polite"
+                  aria-busy="true"
                 >
                   No villages found. Try adjusting your search or filters.
                 </li>

@@ -1,29 +1,47 @@
 // src/components/MapWithPanel.tsx
 import React, { useState, useEffect } from "react";
-import Map from "./Map";
+import Map from "./Map"; // Corrected import path for Map
 import MapSummaryPanel from "./MapSummaryPanel";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../services/firebase";
+import type { Village } from "./Map"; // Import Village type if exported from Map.tsx
 
-// Define the Village type to match the Map component's expected structure
-type Village = {
-  id: number;
-  name: string;
-  tehsil: string;
-  coords: [number, number];
-  population: number;
-  status: "visited" | "planned" | "not-visited";
-  parents: { name: string; contact: string }[];
-};
 
-export default function MapWithPanel() {
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<
-    "all" | "visited" | "planned" | "not-visited"
-  >("all");
-  const [villages, setVillages] = useState<Village[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
+// FIX: Add onRequestModalClose to MapWithPanelProps interface
+interface MapWithPanelProps {
+  search: string;
+  setSearch: React.Dispatch<React.SetStateAction<string>>;
+  filter: "all" | "visited" | "planned" | "not-visited";
+  setFilter: React.Dispatch<React.SetStateAction<"all" | "visited" | "planned" | "not-visited">>;
 
+  isSearchActive: boolean;
+  isMapSearchControlVisible: boolean;
+  onLocationSelectedFromMapSearch: (location: { lat: number; lng: number; address: string }) => void;
+  onSearchControlVisibilityChange: (isVisible: boolean) => void;
+  onLocationFoundForModal: (location: { lat: number; lng: number; address: string } | null) => void;
+  onRequestModalClose: () => void; // <--- ADD THIS LINE
+}
+
+
+// FIX: Accept onRequestModalClose in the functional component's props
+export default function MapWithPanel({
+  search,
+  setSearch,
+  filter,
+  setFilter,
+  isSearchActive,
+  isMapSearchControlVisible,
+  onLocationSelectedFromMapSearch,
+  onSearchControlVisibilityChange,
+  onLocationFoundForModal,
+  onRequestModalClose, // <--- ACCEPT IT HERE
+}: MapWithPanelProps) { // <-- Use the new interface
+
+  const [villages, setVillages] = useState<Village[]>([]); // Keep if needed for MapSummaryPanel
+  const [isOpen, setIsOpen] = useState(false); // This seems related to MapSummaryPanel's open state
+
+
+  // If MapSummaryPanel (or anything else in MapWithPanel) needs `villages` data:
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "villages"), (snapshot) => {
       const data = snapshot.docs.map((doc) => {
@@ -44,13 +62,13 @@ export default function MapWithPanel() {
             : [],
         } as Village;
       });
-      setVillages(data);
+      setVillages(data); // This updates the 'villages' state in MapWithPanel
     });
     return () => unsubscribe();
   }, []);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen z-[1001]">
       <MapSummaryPanel
         search={search}
         setSearch={setSearch}
@@ -58,9 +76,20 @@ export default function MapWithPanel() {
         setFilter={setFilter}
         isOpen={isOpen}
         setIsOpen={setIsOpen}
+        // If MapSummaryPanel needs 'villages', pass it here:
+        // villages={villages}
       />
       <div className="flex-1">
-        <Map villages={villages} search={search} filter={filter} />
+        <Map
+          search={search}
+          filter={filter}
+          isSearchActive={isSearchActive}
+          isMapSearchControlVisible={isMapSearchControlVisible}
+          onLocationSelectedFromMapSearch={onLocationSelectedFromMapSearch}
+          onSearchControlVisibilityChange={onSearchControlVisibilityChange}
+          onLocationFoundForModal={onLocationFoundForModal}
+          onRequestModalClose={onRequestModalClose} // <--- PASS IT DOWN HERE
+        />
       </div>
     </div>
   );

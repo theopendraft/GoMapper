@@ -7,7 +7,7 @@ import {
 import Layout from "./components/Layout";
 import Dashboard from "./pages/dashboardPage";
 import MapPage from "./pages/mapPage";
-import ParentsPage from "./pages/parentsPage";
+import ParentsPage from "./pages/contactsPage";
 import LoginPage from "./pages/loginPage";
 import SignupPage from "./pages/signupPage";
 import { AuthProvider } from "./context/AuthContext";
