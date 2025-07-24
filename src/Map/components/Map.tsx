@@ -1,4 +1,5 @@
-// src/components/map/components/Map.tsx
+// src/components/map/components/Map.tsx (Updated)
+
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import {
   MapContainer,
@@ -6,26 +7,31 @@ import {
   Marker,
   Popup,
   useMapEvent,
-  useMap, // NEW: Hook to access the Leaflet map instance
+  useMap,
 } from "react-leaflet";
 import L from "leaflet";
 import {
-  collection,
-  onSnapshot,
-  doc,
-  setDoc,
-  deleteDoc,
-} from "firebase/firestore";
-import { db } from "../../services/firebase";
+  query,
+  where,
+  db,
+  getProjectPinsCollection
+} from "../../services/firebase";
+import { onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { EditVillageModal } from "../../components/modals/EditVillageModal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FiPlus, FiCheckCircle } from "react-icons/fi";
 import debounce from "lodash/debounce";
 
-// NEW: Import GeoSearch stuff
 import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
 import 'leaflet-geosearch/dist/geosearch.css';
+
+import { User } from 'firebase/auth';
+// FIX: Import VillageType from types/village.ts
+import { Village as VillageType } from '../../types/village';
+// FIX: Import ParentType from the new types/parent.ts file
+import { Parent as ParentType } from '../../types/parent';
+
 
 // Fix for default marker icon issue in Leaflet with bundlers
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -36,24 +42,11 @@ L.Icon.Default.mergeOptions({
 });
 
 
-// Types (keep as is)
-export type Parent = {
-  name: string;
-  contact: string;
-};
+// Type Aliases for Village and Parent
+export type Village = VillageType;
+// FIX: Now Parent is directly aliased from ParentType, which is from its own file
+export type Parent = ParentType;
 
-export type Village = {
-  id: string | number;
-  name: string;
-  tehsil: string;
-  coords: [number, number];
-  population: number;
-  status: "visited" | "planned" | "not-visited" | string;
-  lastInteraction?: string;
-  nextVisitTarget?: string;
-  notes?: string;
-  parents: Parent[];
-};
 
 const iconUrls = {
   visited: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
@@ -69,19 +62,19 @@ const createIcon = (status: string) =>
   });
 
 interface Props {
-  
   search: string;
   filter: "all" | "visited" | "planned" | "not-visited";
-  // NEW PROPS for search integration
-  isSearchActive: boolean; // Indicates if the search modal is open
-  isMapSearchControlVisible: boolean; // Added missing prop for mapPage.tsx usage
+  isSearchActive: boolean;
+  isMapSearchControlVisible: boolean;
   onLocationSelectedFromMapSearch: (location: { lat: number; lng: number; address: string }) => void;
-  onSearchControlVisibilityChange: (isVisible: boolean) => void; // To tell App.tsx if control is visible
+  onSearchControlVisibilityChange: (isVisible: boolean) => void;
   onLocationFoundForModal: (location: { lat: number; lng: number; address: string } | null) => void;
   onRequestModalClose: () => void;
+  currentUser: User | null;
+  currentProjectId: string | null;
 }
 
-// Village Popup Component (keep as is)
+// Village Popup Component (remains the same in usage, types are fixed)
 const VillagePopup: React.FC<{
   village: Village;
   onEdit: () => void;
@@ -90,7 +83,7 @@ const VillagePopup: React.FC<{
   <div className="min-w-[200px]">
     <h3 className="font-bold text-lg">{village.name}</h3>
     <p>Status: {village.status}</p>
-    <p>Last Interaction: {village.lastInteraction || "N/A"}</p>
+    <p>Last Interaction: {village.lastVisit || "N/A"}</p> {/* Using lastVisit as per VillageType */}
     <h4 className="font-semibold mt-2">Parents:</h4>
     {village.parents?.length > 0 ? (
       <ul className="list-disc ml-5">
@@ -120,7 +113,8 @@ const VillagePopup: React.FC<{
   </div>
 );
 
-// Add Village Component (keep as is)
+
+// Add Village Component
 const AddVillageOnMap: React.FC<{
   onSelect: (coords: [number, number]) => void;
 }> = ({ onSelect }) => {
@@ -130,128 +124,112 @@ const AddVillageOnMap: React.FC<{
   return null;
 };
 
-// NEW: Component to manage the GeoSearchControl lifecycle
+// GeoSearchControlManager component
 const GeoSearchControlManager: React.FC<{
-    isActive: boolean;
-    // Keep this type signature for onLocationFound, it's correct for the data you want
-    onLocationFound: (location: { x: number; y: number; label: string; raw: any }) => void;
-    onVisibilityChange: (isVisible: boolean) => void;
-    currentMarkerLocation: [number, number] | null; // Pass current marker location
-    onRequestModalClose: () => void; // Added new prop
+  isActive: boolean;
+  onLocationFound: (location: { x: number; y: number; label: string; raw: any }) => void;
+  onVisibilityChange: (isVisible: boolean) => void;
+  currentMarkerLocation: [number, number] | null;
+  onRequestModalClose: () => void;
 }> = ({ isActive, onLocationFound, onVisibilityChange, currentMarkerLocation, onRequestModalClose }) => {
-    const map = useMap(); // Get the Leaflet map instance
-    const searchControlRef = useRef<any>(null); // Ref to store the search control instance
+  const map = useMap();
+  const searchControlRef = useRef<any>(null);
 
-    // Define the event handler for 'geosearch/showlocation' outside useEffect
-    // to ensure a stable reference for `map.off` cleanup.
-    // It takes the Leaflet event object and extracts the `location` property.
-    const geoSearchEventHandler = React.useCallback((event: any) => {
-        onLocationFound(event.location);
-    }, [onLocationFound]);
+  const geoSearchEventHandler = React.useCallback((event: any) => {
+    onLocationFound(event.location);
+  }, [onLocationFound]);
 
 
-   // EFFECT 1: Add/Remove GeoSearchControl
-    useEffect(() => {
-        if (isActive) {
-            if (!searchControlRef.current) {
-                const provider = new OpenStreetMapProvider();
-                const searchControl = new (GeoSearchControl as any)({
-                    provider: provider,
-                    style: 'bar',
-                    position: 'topright',
-                    showMarker: false,
-                    showPopup: false,
-                    autoClose: false,
-                    retainZoomLevel: false,
-                    animateZoom: true,
-                    keepResult: false,
-                    searchLabel: 'Search location (e.g., city, address)',
-                    notFoundMessage: 'Location not found.',
-                });
-                map.addControl(searchControl);
-                searchControlRef.current = searchControl;
+  // EFFECT 1: Add/Remove GeoSearchControl based on `isActive`
+  useEffect(() => {
+    if (isActive) {
+      if (!searchControlRef.current) {
+        const provider = new OpenStreetMapProvider();
+        const searchControl = new (GeoSearchControl as any)({
+          provider: provider,
+          style: 'bar',
+          position: 'topright',
+          showMarker: false,
+          showPopup: false,
+          autoClose: false,
+          retainZoomLevel: false,
+          animateZoom: true,
+          keepResult: false,
+          searchLabel: 'Search location (e.g., city, address)',
+          notFoundMessage: 'Location not found.',
+        });
+        map.addControl(searchControl);
+        searchControlRef.current = searchControl;
 
-                map.on('geosearch/showlocation', geoSearchEventHandler);
-                onVisibilityChange(true);
-            }
-        } else {
-            if (searchControlRef.current) {
-                map.removeControl(searchControlRef.current);
-                map.off('geosearch/showlocation', geoSearchEventHandler);
-                searchControlRef.current = null;
-                onVisibilityChange(false);
-            }
-        }
+        map.on('geosearch/showlocation', geoSearchEventHandler);
+        onVisibilityChange(true);
+      }
+    } else {
+      if (searchControlRef.current) {
+        map.removeControl(searchControlRef.current);
+        map.off('geosearch/showlocation', geoSearchEventHandler);
+        searchControlRef.current = null;
+        onVisibilityChange(false);
+      }
+    }
 
-        return () => {
-            if (searchControlRef.current) {
-                map.removeControl(searchControlRef.current);
-                map.off('geosearch/showlocation', geoSearchEventHandler);
-                searchControlRef.current = null;
-                onVisibilityChange(false);
-            }
-        };
-    }, [isActive, map, geoSearchEventHandler, onVisibilityChange]);
+    return () => {
+      if (searchControlRef.current) {
+        map.removeControl(searchControlRef.current);
+        map.off('geosearch/showlocation', geoSearchEventHandler);
+        searchControlRef.current = null;
+        onVisibilityChange(false);
+      }
+    };
+  }, [isActive, map, geoSearchEventHandler, onVisibilityChange]);
 
-    // EFFECT 2: Adjust map view
-    useEffect(() => {
-        if (isActive && currentMarkerLocation && map) {
-            map.setView(currentMarkerLocation, 14);
-        }
-    }, [isActive, currentMarkerLocation, map]);
-
-
-    // FIX: Redefine handleClickOutside to accept LeafletMouseEvent
-    const handleClickOutside = React.useCallback((e: L.LeafletMouseEvent) => { // <-- Change 'MouseEvent' to 'L.LeafletMouseEvent'
-        if (!isActive || !searchControlRef.current) {
-            return; // Should theoretically be caught by useEffect dependency, but good for safety
-        }
-
-        const searchControlElement = searchControlRef.current.getContainer(); // Get the DOM element
-
-        // Access the original DOM event for the contains check
-        const originalEventTarget = e.originalEvent.target as Node;
-
-        // Check if the click occurred outside the search bar element
-        // And ensure the click target is part of the map container (to avoid clicks on other UI elements outside map but on same page triggering it)
-        if (searchControlElement &&
-            !searchControlElement.contains(originalEventTarget) &&
-            map.getContainer().contains(originalEventTarget)
-        ) {
-            console.log("Clicked outside search bar. Requesting modal closure.");
-            onRequestModalClose(); // Request the parent (context) to close the modal
-        }
-    }, [isActive, map, onRequestModalClose]); // Dependencies for useCallback
+  // EFFECT 2: Adjust map view if a new search result comes in
+  useEffect(() => {
+    if (isActive && currentMarkerLocation && map) {
+      map.setView(currentMarkerLocation, 14);
+    }
+  }, [isActive, currentMarkerLocation, map]);
 
 
-    // EFFECT 3: Handle outside click to hide the search bar
-    useEffect(() => {
-        // Only attach listener if search is active (and control is presumably rendered)
-        if (!isActive) { // No need for searchControlRef.current here, as handleClickOutside handles it
-            return;
-        }
+  // EFFECT 3: Handle outside click to hide the search bar (by closing the modal)
+  const handleClickOutside = React.useCallback((e: L.LeafletMouseEvent) => {
+    // Only proceed if search control is actually present and active
+    if (!isActive || !searchControlRef.current) {
+        return;
+    }
 
-        // Add the click listener to the map
-        map.on('click', handleClickOutside);
+    const searchControlElement = searchControlRef.current.getContainer();
+    const originalEventTarget = e.originalEvent.target as Node;
 
-        // Clean up the click listener when the component unmounts or `isActive` changes
-        return () => {
-            map.off('click', handleClickOutside);
-        };
-    }, [isActive, map, handleClickOutside]); // Add handleClickOutside to dependencies
-
-
-    // Adjust map view if a new search result comes in
-    useEffect(() => {
-        if (isActive && currentMarkerLocation && map) {
-            map.setView(currentMarkerLocation, 14); // Adjust zoom as needed
-        }
-    }, [isActive, currentMarkerLocation, map]);
+    // Check if the click occurred outside the search bar element
+    // And ensure the click target is part of the map container (to avoid clicks on other UI elements outside map but on same page triggering it)
+    if (
+      searchControlElement &&
+      !searchControlElement.contains(originalEventTarget) &&
+      map.getContainer().contains(originalEventTarget)
+    ) {
+      console.log("Clicked outside search bar. Requesting modal closure.");
+      onRequestModalClose(); // Request the parent (context) to close the modal
+    }
+  }, [isActive, map, onRequestModalClose]);
 
 
-    return null;
+  useEffect(() => {
+    // Only attach listener if search is active (and control is presumably rendered)
+    if (!isActive) {
+      return;
+    }
+
+    map.on('click', handleClickOutside);
+
+    return () => {
+      map.off('click', handleClickOutside);
+    };
+  }, [isActive, map, handleClickOutside]);
+
+
+  return null;
 };
-
 
 
 export default function Map({
@@ -261,8 +239,10 @@ export default function Map({
   isMapSearchControlVisible,
   onLocationSelectedFromMapSearch,
   onSearchControlVisibilityChange,
-  onLocationFoundForModal, // NEW: Callback to update modal's state
+  onLocationFoundForModal,
   onRequestModalClose,
+  currentUser, // Destructured currentUser prop
+  currentProjectId, // Destructured currentProjectId prop
 }: Props) {
   const [selectedVillage, setSelectedVillage] = useState<Village | null>(null);
   const [editingVillage, setEditingVillage] = useState<Village | null>(null);
@@ -274,95 +254,137 @@ export default function Map({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // NEW: State for temporary marker from search
   const [tempSearchMarker, setTempSearchMarker] = useState<{ latlng: [number, number]; address: string } | null>(null);
 
 
   // Debounced search (keep as is)
-  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  const debouncedSearch = useMemo(() => debounce((searchQuery: string) => {
+    // This is already being used to update state, so no need for internal state and useEffect
+  }, 300), []);
 
   useEffect(() => {
-    const handler = debounce(() => {
-      setDebouncedSearch(search);
-    }, 300);
+    debouncedSearch(search);
+  }, [search, debouncedSearch]);
 
-    handler();
 
-    return () => {
-      handler.cancel();
-    };
-  }, [search]);
-
-  // Firestore live sync with error handling (keep as is)
+  // FIX: Firestore live sync with error handling - now depends on currentUser and currentProjectId
   useEffect(() => {
-    let unsubscribe: () => void;
-    try {
-      unsubscribe = onSnapshot(
-        collection(db, "villages"),
-        (snapshot) => {
-          const villages = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          })) as Village[];
-          setVillagesState(villages);
-          setIsLoading(false);
-        },
-        (err) => {
-          setError("Failed to fetch villages");
-          setIsLoading(false);
-          toast.error("Error loading villages");
-        }
-      );
-    } catch (err) {
-      setError("Failed to initialize data sync");
+    let unsubscribe: (() => void) | undefined;
+    // Only proceed if we have a logged-in user and a selected project
+    if (currentUser && currentUser.uid && currentProjectId) {
+      setIsLoading(true); // Start loading when query changes
+      setError(null); // Clear previous errors
+
+      try {
+        const pinsCollection = getProjectPinsCollection(currentUser.uid, currentProjectId);
+        // You might add a query here if needed, e.g., orderBy, limit
+        // const q = query(pinsCollection, orderBy("name"));
+        
+        unsubscribe = onSnapshot(
+          pinsCollection, // Listen to the specific project's pins
+          (snapshot) => {
+            const pins = snapshot.docs.map((doc) => {
+              const data = doc.data();
+              return {
+                id: doc.id,
+                name: data.name || '', // Ensure name exists
+                coords: data.coords || [0, 0], // Ensure coords exist
+                status: data.status || "not-visited", // Ensure status exists
+                parents: data.parents || [], // Ensure parents exist
+                projectId: currentProjectId, // Ensure projectId is part of the client-side object
+                // Assign other optional properties from Firestore data or defaults
+                lastVisit: data.lastVisit || undefined,
+                tehsil: data.tehsil || undefined,
+                population: data.population || undefined,
+                notes: data.notes || undefined,
+                interactionHistory: data.interactionHistory || undefined,
+                nextVisitTarget: data.nextVisitTarget || undefined,
+                parentsName: data.parentsName || undefined,
+                parentsContact: data.parentsContact || undefined,
+              } as Village; // Cast to your VillageType
+            });
+            setVillagesState(pins);
+            setIsLoading(false);
+          },
+          (err: any) => { // Explicitly type err as any for now to avoid implicit any
+            setError("Failed to fetch villages: " + err.message);
+            setIsLoading(false);
+            toast.error("Error loading villages: " + err.message);
+          }
+        );
+      } catch (err: any) { // Catch potential errors during collection reference creation
+        setError("Failed to initialize data sync: " + err.message);
+        setIsLoading(false);
+        toast.error("Error initializing data sync: " + err.message);
+      }
+    } else {
+      // If no user or no project selected, clear pins and set loading to false
+      setVillagesState([]);
       setIsLoading(false);
-      toast.error("Error initializing data sync");
+      setError(null);
     }
 
-    return () => unsubscribe?.();
-  }, []);
+    return () => {
+      // Cleanup listener when component unmounts or dependencies change
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [currentUser, currentProjectId]); // Depend on currentUser and currentProjectId
+
 
   // Filter villages with memoization (keep as is)
   const displayVillages = useMemo(() => {
-    const searchLower = debouncedSearch.toLowerCase();
+    const searchLower = search.toLowerCase(); // Use 'search' prop directly now for filter
     return villagesState.filter((v) => {
       const matchSearch = v.name.toLowerCase().includes(searchLower);
       const matchFilter = filter === "all" || v.status === filter;
       return matchSearch && matchFilter;
     });
-  }, [villagesState, debouncedSearch, filter]);
+  }, [villagesState, search, filter]); // Depend on 'search' prop instead of 'debouncedSearch' local state
 
   const handleEditClick = (village: Village) => {
     setEditingVillage(village);
     setSelectedVillage(null);
   };
 
+  // FIX: handleSaveVillage now uses current user/project context
   const handleSaveVillage = async (updatedVillage: Village) => {
+    if (!currentUser || !currentUser.uid || !currentProjectId) {
+      toast.error("Authentication required or no project selected. Cannot save pin.");
+      return;
+    }
     try {
-      await setDoc(
-        doc(db, "villages", updatedVillage.id.toString()),
-        updatedVillage
-      );
+      const pinDocRef = doc(getProjectPinsCollection(currentUser.uid, currentProjectId), updatedVillage.id.toString());
+      // Ensure the saved village includes the projectId from the current context
+      const villageToSave: Village = { ...updatedVillage, projectId: currentProjectId };
+      await setDoc(pinDocRef, villageToSave); // Use setDoc from firebase/firestore
       setEditingVillage(null);
       setAddingVillage(false);
       setNewVillageCoords(null);
-      setTempSearchMarker(null); // Clear temporary search marker
+      setTempSearchMarker(null);
       setSelectedVillage(updatedVillage);
-      toast.success("Village updated successfully");
+      toast.success("Pin updated successfully");
       onLocationFoundForModal(null); // Clear the message in the modal
-    } catch (err) {
-      toast.error("Failed to save village");
+    } catch (err: any) {
+      toast.error("Failed to save pin: " + err.message);
     }
   };
 
+  // FIX: handleDeleteVillage now uses current user/project context
   const handleDeleteVillage = async (villageId: string | number) => {
-    if (!window.confirm("Are you sure you want to delete this village?")) return;
+    if (!currentUser || !currentUser.uid || !currentProjectId) {
+      toast.error("Authentication required or no project selected. Cannot delete pin.");
+      return;
+    }
+    if (!window.confirm("Are you sure you want to delete this pin?")) return;
     try {
-      await deleteDoc(doc(db, "villages", villageId.toString()));
+      const pinDocRef = doc(getProjectPinsCollection(currentUser.uid, currentProjectId), villageId.toString());
+      await deleteDoc(pinDocRef); // Use deleteDoc from firebase/firestore
       setSelectedVillage(null);
-      toast.success("Village deleted successfully");
-    } catch (err) {
-      toast.error("Failed to delete village");
+      toast.success("Pin deleted successfully");
+    } catch (err: any) {
+      toast.error("Failed to delete pin: " + err.message);
     }
   };
 
@@ -370,41 +392,41 @@ export default function Map({
     setEditingVillage(null);
     setAddingVillage(false);
     setNewVillageCoords(null);
-    setTempSearchMarker(null); // Clear temporary search marker
-    onLocationFoundForModal(null); // Clear the message in the modal
+    setTempSearchMarker(null);
+    onLocationFoundForModal(null);
   };
 
 
-  // NEW: Callback for when GeoSearchControl finds a location
   const handleGeoSearchLocationFound = React.useCallback((event: any) => {
     const location = event.location;
     const latlng: [number, number] = [location.y, location.x];
     setTempSearchMarker({ latlng, address: location.label });
-    onLocationFoundForModal({ lat: location.y, lng: location.x, address: location.label }); // Update modal state
+    onLocationFoundForModal({ lat: location.y, lng: location.x, address: location.label });
   }, [onLocationFoundForModal]);
 
 
-  // NEW: Effect to clear temporary marker when search modal closes
   useEffect(() => {
     if (!isSearchActive) {
       setTempSearchMarker(null);
-      // Also clear other related states if modal is closed
       setAddingVillage(false);
       setNewVillageCoords(null);
     }
   }, [isSearchActive]);
 
-  // NEW: Function to handle selecting the temporary marker
   const handleSelectTempMarker = () => {
+    if (!currentUser || !currentProjectId) {
+      toast.error("Please log in and select a project to add pins from search.");
+      return;
+    }
     if (tempSearchMarker) {
       onLocationSelectedFromMapSearch({
         lat: tempSearchMarker.latlng[0],
         lng: tempSearchMarker.latlng[1],
         address: tempSearchMarker.address,
       });
-      setNewVillageCoords(tempSearchMarker.latlng); // Set coords for the new village
-      setAddingVillage(true); // Trigger new village add flow
-      setTempSearchMarker(null); // Clear temp marker after selection
+      setNewVillageCoords(tempSearchMarker.latlng);
+      setAddingVillage(true);
+      setTempSearchMarker(null);
     }
   };
 
@@ -413,21 +435,38 @@ export default function Map({
     return <div className="text-red-600 p-4">Error: {error}</div>;
   }
 
-  return (
-    <div className="relative">
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100/50 z-[1000]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+  // Show loading indicator if still loading data for map
+  if (isLoading) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-gray-100/50 z-[1000]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  // If no current project, display a message or direct user
+  if (!currentProjectId) {
+    return (
+        <div className="flex justify-center items-center h-full w-full bg-gray-100 text-lg text-gray-700 text-center p-4">
+            No project selected. Please select or create a project using the sidebar.
         </div>
-      )}
-      
+    );
+  }
+
+
+  return (
+    <div className="relative h-full w-full"> {/* Ensure container fills available space */}
       <button
         className="fixed bottom-24 md:bottom-6 right-3 z-[1000] flex items-center bg-green-600 text-white rounded-full shadow-lg px-4 py-4 transition-all duration-300 group hover:pr-8 hover:rounded-full "
         onClick={() => {
+          if (!currentUser || !currentProjectId) {
+            toast.error("Please log in and select a project to add pins.");
+            return;
+          }
           setAddingVillage(true);
           setNewVillageCoords(null);
-          setTempSearchMarker(null); // Clear temporary search marker
-          onLocationFoundForModal(null); // Clear message in modal
+          setTempSearchMarker(null);
+          onLocationFoundForModal(null);
         }}
         style={{ minWidth: 56, minHeight: 56 }}
       >
@@ -443,26 +482,22 @@ export default function Map({
         center={[22.68411, 77.26887]}
         zoom={11}
         className={`h-screen w-full z-10 ${
-          (addingVillage && !newVillageCoords && !tempSearchMarker) ? "cursor-crosshair" : "" // Only crosshair if adding via click
+          (addingVillage && !newVillageCoords && !tempSearchMarker) ? "cursor-crosshair" : ""
         }`}
-        // The whenCreated prop is not needed anymore since we are using useMap hook in GeoSearchControlManager
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
 
-        {/* NEW: Render the GeoSearchControlManager component */}
         <GeoSearchControlManager
             isActive={isSearchActive}
             onLocationFound={handleGeoSearchLocationFound}
             onVisibilityChange={onSearchControlVisibilityChange}
             currentMarkerLocation={tempSearchMarker ? tempSearchMarker.latlng : null}
             onRequestModalClose={onRequestModalClose}
-            
         />
         
-        {/* Only show AddVillageOnMap when explicitly in "add new pins" mode and no coords yet from search */}
         {addingVillage && !newVillageCoords && !tempSearchMarker && (
           <>
             <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-[1001] bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-2 rounded shadow">
@@ -472,12 +507,11 @@ export default function Map({
           </>
         )}
 
-        {/* NEW: Render temporary search marker */}
         {tempSearchMarker && (
             <Marker
                 position={tempSearchMarker.latlng}
                 eventHandlers={{
-                    click: handleSelectTempMarker, // Click the marker to select
+                    click: handleSelectTempMarker,
                 }}
             >
                 <Popup>
@@ -493,7 +527,6 @@ export default function Map({
                 </Popup>
             </Marker>
         )}
-
 
         {displayVillages.map((village) => (
           <Marker
@@ -529,7 +562,9 @@ export default function Map({
         <EditVillageModal
           village={
             editingVillage || {
-              id: Date.now(),
+              // FIX: Convert Date.now() to a string for the ID
+              id: Date.now().toString(), // <--- CHANGE THIS LINE
+              projectId: currentProjectId!, // This is correct, ensure it's a string
               name: "",
               tehsil: "",
               coords: newVillageCoords!,
@@ -537,10 +572,18 @@ export default function Map({
               status: "not-visited",
               parents: [],
               notes: "",
+              // Make sure other optional fields are initialized as per VillageType if your form expects them
+              lastVisit: undefined,
+              interactionHistory: undefined,
+              nextVisitTarget: undefined,
+              parentsName: undefined,
+              parentsContact: undefined,
             }
           }
           onClose={handleModalClose}
           onSave={handleSaveVillage}
+          currentUserUid={currentUser?.uid ?? null}
+          currentProjectId={currentProjectId}
         />
       )}
 

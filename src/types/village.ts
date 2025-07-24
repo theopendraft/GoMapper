@@ -1,14 +1,16 @@
+// src/types/village.ts (Updated)
+
 export type VillageStatus = 'visited' | 'not-visited' | 'planned';
-import type { Parent } from "../Map/components/Map";
+// FIX: Import Parent and ExtendedParent from the new types/parent.ts file
+import type { Parent, ExtendedParent } from "./parent";
 
 export interface Village {
-  id: string;
+  id: string; // Firestore document ID (for the pin)
+  projectId: string; // The ID of the project this pin belongs to
   name: string;
   status: VillageStatus;
-  location: {
-    lat: number;
-    lng: number;
-  };
+  coords: [number, number]; // Matches Leaflet's [lat, lng] format (latitude, longitude)
+
   lastVisit?: string;
   parentsName?: string;
   parentsContact?: string;
@@ -17,14 +19,15 @@ export interface Village {
   notes?: string;
   tehsil?: string;
   population?: number;
-  parents: ExtendedParent[];
+  parents: ExtendedParent[]; // This now references the imported ExtendedParent
 }
 
-export interface ExtendedParent extends Parent {
-  lastInteraction?: string;
-  nextVisitTarget?: string;
-  notes?: string;
-}
+// FIX: Remove ExtendedParent definition from here if it's in types/parent.ts
+// export interface ExtendedParent extends Parent {
+//   lastInteraction?: string;
+//   nextVisitTarget?: string;
+//   notes?: string;
+// }
 
-export type { Parent };
-
+// FIX: Remove re-export of Parent if it's not strictly necessary and avoid circularity
+// export type { Parent };

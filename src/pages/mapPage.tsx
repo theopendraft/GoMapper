@@ -1,81 +1,115 @@
 // src/pages/mapPage.tsx
 import React, { useState } from "react";
-// Import your Map component (assuming path is correct from MapPage)
-import Map from "../Map/components/Map";
-// Import your MapSummaryPanel component
-import MapSummaryPanel from "../Map/components/MapSummaryPanel";
-// Import the MapSearchContext hook
+// Direct import of Map and MapSummaryPanel from their respective paths
+import Map from "../Map/components/Map"; // Adjust path if different
+import MapSummaryPanel from "../Map/components/MapSummaryPanel"; // Adjust path if different
+// Import MapSearchContext hook
 import { useMapSearch } from "../context/MapSearchContext";
+// Import Navigate for conditional rendering
+import { Navigate } from "react-router-dom";
+// Import User type if needed explicitly for conditional rendering types, though not strictly required here
+// import { User } from 'firebase/auth'; 
 
 export default function MapPage() {
-  // Destructure states and setters from MapSearchContext
-  // These are primarily for the "Search Location" modal and its interaction with the Map component.
+  // Destructure all necessary states and setters from MapSearchContext
   const {
-    isSearchModalOpen, // True when the "Search Location" modal is open
-    isMapSearchControlVisible, // True when the geosearch input is visible on the map
-    setIsMapSearchControlVisible, // Setter for isMapSearchControlVisible (passed to Map)
-    setLocationFoundForModalDisplay, // Setter for the message in the SearchModal (passed to Map)
-    handleLocationSelectedFromMapSearchAndCloseModal, // Callback when a search result is selected on the map
-    requestSearchModalClose, // Callback to close the search modal from Map
+    currentUser,
+    currentProjectId,
+    loadingProjects, // Indicates if user's projects are still being fetched
+    isSearchModalOpen, // Controls visibility of the location search modal
+    isMapSearchControlVisible, // Controls visibility of the Leaflet geosearch bar on the map
+    setIsMapSearchControlVisible, // Setter for isMapSearchControlVisible
+    setLocationFoundForModalDisplay, // Setter for displaying location info in search modal
+    handleLocationSelectedFromMapSearchAndCloseModal, // Callback when a location is selected from map search
+    requestSearchModalClose, // Callback to close the search modal (e.g., on outside click)
   } = useMapSearch();
 
   // States for the MapSummaryPanel's internal search and filter inputs
-  // These control the list of villages displayed in the panel and filtered on the map.
+  // These control the list of villages displayed in the panel and how they are filtered on the map.
   const [panelSearchQuery, setPanelSearchQuery] = useState("");
   const [panelFilterType, setPanelFilterType] = useState<
     "all" | "visited" | "planned" | "not-visited"
   >("all");
 
-  // State to control the open/close of the MapSummaryPanel itself
-  // This can be used to programmatically open/close the panel if needed from MapPage.
-  // The panel also has its own internal state, but this allows external control.
-  const [isPanelOpen, setIsPanelOpen] = useState(false); // Initial state: panel is closed
+  // State to control the open/close state of the MapSummaryPanel itself
+  // This allows programmatic control over the panel's visibility from MapPage.
+  const [isPanelOpen, setIsPanelOpen] = useState(false); // Panel starts closed by default
 
+  // --- Conditional Rendering for initial loading and project selection ---
+  // If no user is logged in, redirect to login page (ProtectedRoute should handle this first)
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Show a loading indicator while user's projects are being fetched
+  if (loadingProjects) {
+    return (
+      <div className="flex justify-center items-center h-full w-full text-lg text-gray-700 bg-gray-100">
+        Loading projects for your account...
+      </div>
+    );
+  }
+
+  // If user is logged in, projects are loaded, but no project is currently selected
+  // This might happen for a brand new user who hasn't created any projects yet.
+  if (!currentProjectId) {
+    return (
+      <div className="flex justify-center items-center h-full w-full text-lg text-gray-700 text-center p-4 bg-gray-100">
+        <p>No project selected. Please use the sidebar (top-left menu icon) to create a new project or select an existing one.</p>
+      </div>
+    );
+  }
+
+  // --- Main Render: If we reach here, currentUser and currentProjectId are valid, and projects are loaded ---
   return (
     // The main container for the map and the summary panel.
-    // Use `relative` for positioning context if MapSummaryPanel uses `fixed`
-    // or if you want to explicitly place it within this div's flow.
-    // `h-full w-full flex` allows the Map to take remaining space if MapSummaryPanel is inline.
-    // However, since MapSummaryPanel is `fixed` positioned, flex isn't strictly necessary
-    // for sibling layout, but good practice if you ever change positioning.
+    // `relative` positioning is crucial for `MapSummaryPanel` which uses `fixed`.
+    // `h-full w-full` ensures it takes full available space in the parent (`main` tag in Layout).
     <div className="relative h-full w-full">
       {/*
-        The main map component, which displays village pins and the search bar
-        when activated via the SearchModal.
-        It receives the search/filter states from MapSummaryPanel for its own filtering,
-        and search-related states/callbacks from MapSearchContext.
+        Container for the Map component.
+        `flex-1 h-full` ensures the map div expands to fill available space
+        and takes full height within this flex container.
       */}
-      <div className="flex-1 h-full"> {/* Ensures map div takes available space */}
+      <div className="flex-1 h-full">
         <Map
-          // Props for filtering existing villages on the map (controlled by MapSummaryPanel's inputs)
+          // Props for filtering existing pins on the map (controlled by MapSummaryPanel's inputs)
           search={panelSearchQuery}
           filter={panelFilterType}
 
           // Props for the location search feature (controlled via SearchModal/MapSearchContext)
-          isSearchActive={isSearchModalOpen} // Tells Map if the SearchModal is open, indicating a search intent
-          isMapSearchControlVisible={isMapSearchControlVisible} // Controls visibility of the GeoSearchControl on the map
-          onSearchControlVisibilityChange={setIsMapSearchControlVisible} // Map tells context if control is visible
-          onLocationFoundForModal={setLocationFoundForModalDisplay} // Map tells context what location was found for modal message
-          onLocationSelectedFromMapSearch={handleLocationSelectedFromMapSearchAndCloseModal} // Map tells context when a search result is selected
-          onRequestModalClose={requestSearchModalClose} // NEW: Pass it to Map
+          isSearchActive={isSearchModalOpen} // Activates the search bar when modal is open
+          isMapSearchControlVisible={isMapSearchControlVisible} // For internal control flow if needed
+          onSearchControlVisibilityChange={setIsMapSearchControlVisible} // Map reports search bar visibility
+          onLocationFoundForModal={setLocationFoundForModalDisplay} // Map sends found location to modal
+          onLocationSelectedFromMapSearch={handleLocationSelectedFromMapSearchAndCloseModal} // Callback when a search result is selected
+          onRequestModalClose={requestSearchModalClose} // Map requests modal closure on outside click
+
+          // User and Project context for data access (crucial for fetching/saving/deleting pins)
+          currentUser={currentUser}
+          currentProjectId={currentProjectId}
         />
       </div>
 
       {/*
-        The MapSummaryPanel component, which displays the list of villages,
-        and provides search/filter inputs for those villages.
-        Its open/close state is managed by `isPanelOpen`.
+        The MapSummaryPanel component, rendered as a sibling to the map.
+        It uses `fixed` positioning, so it floats over the map content.
+        It displays filtered pins and provides controls for them.
       */}
       <MapSummaryPanel
-        // Props for its own internal search/filter inputs
+        // Pass panel's own search/filter states (from MapPage)
         search={panelSearchQuery}
         setSearch={setPanelSearchQuery}
         filter={panelFilterType}
         setFilter={setPanelFilterType}
 
-        // Props to control its external open/close state (from MapPage)
+        // Pass control for its open/close state (from MapPage)
         isOpen={isPanelOpen}
         setIsOpen={setIsPanelOpen}
+
+        // Pass user and project context for its data fetching (required by MapSummaryPanel)
+        currentUser={currentUser}
+        currentProjectId={currentProjectId}
       />
     </div>
   );

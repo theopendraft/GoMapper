@@ -1,5 +1,6 @@
+// src/App.tsx
 import {
-  BrowserRouter as Router,
+  BrowserRouter as Router, // Ensure you are using BrowserRouter
   Routes,
   Route,
   Navigate,
@@ -7,24 +8,38 @@ import {
 import Layout from "./components/Layout";
 import Dashboard from "./pages/dashboardPage";
 import MapPage from "./pages/mapPage";
-import ParentsPage from "./pages/contactsPage";
+import ContactsPage from "./pages/contactsPage"; // Assuming ParentsPage is now ContactsPage
 import LoginPage from "./pages/loginPage";
 import SignupPage from "./pages/signupPage";
+import LandingPage from "./pages/LandingPage"; // Import LandingPage
+import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
 import { AuthProvider } from "./context/AuthContext";
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Navigate to="/map" replace />} />
-          <Route path="/map" element={<MapPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/parents" element={<ParentsPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-        </Routes>
-      </Layout>
-    </AuthProvider>
+    <Router> {/* Use BrowserRouter here if not already wrapping in main.tsx */}
+      <AuthProvider>
+        {/* Layout wraps all content, including public and protected routes */}
+        <Layout>
+          <Routes>
+            {/* Public Routes - Accessible to everyone */}
+            <Route path="/" element={<LandingPage />} /> {/* This is the new actual landing page */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+
+            {/* Protected Routes - only accessible after successful login */}
+            {/* All routes inside this <Route> element will use the ProtectedRoute logic */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/map" element={<MapPage />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/contacts" element={<ContactsPage />} /> {/* Changed from /parents to /contacts if that's the new name */}
+            </Route>
+
+            {/* Fallback for any unmatched routes - redirects to landing page */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Layout>
+      </AuthProvider>
+    </Router>
   );
 }
