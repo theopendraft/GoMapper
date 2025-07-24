@@ -186,7 +186,7 @@ const GeoSearchControlManager: React.FC<{
   // EFFECT 2: Adjust map view if a new search result comes in
   useEffect(() => {
     if (isActive && currentMarkerLocation && map) {
-      map.setView(currentMarkerLocation, 14);
+      map.setView(currentMarkerLocation, 56);
     }
   }, [isActive, currentMarkerLocation, map]);
 
@@ -397,12 +397,28 @@ export default function Map({
   };
 
 
-  const handleGeoSearchLocationFound = React.useCallback((event: any) => {
-    const location = event.location;
-    const latlng: [number, number] = [location.y, location.x];
-    setTempSearchMarker({ latlng, address: location.label });
-    onLocationFoundForModal({ lat: location.y, lng: location.x, address: location.label });
-  }, [onLocationFoundForModal]);
+const handleGeoSearchLocationFound = React.useCallback((event: any) => {
+    // Console log the entire event object to inspect its structure
+    console.log("geosearch/showlocation event received:", event);
+
+    // Try accessing properties directly from event, not event.location
+    const locationData = event; // Assume location data is directly the event object
+
+    // Common alternative: sometimes it's `event.result` or `event.location`
+    // const locationData = event.location || event.result || event;
+
+
+    if (!locationData || typeof locationData.x === 'undefined' || typeof locationData.y === 'undefined' || typeof locationData.label === 'undefined') {
+        console.error("Invalid location data received from geosearch event:", locationData);
+        toast.error("Location search failed or returned invalid data.");
+        return; // Exit if data is invalid
+    }
+
+    const latlng: [number, number] = [locationData.y, locationData.x]; // Use locationData directly
+    console.log("Setting tempSearchMarker to:", { latlng, address: locationData.label });
+    setTempSearchMarker({ latlng, address: locationData.label });
+    onLocationFoundForModal({ lat: locationData.y, lng: locationData.x, address: locationData.label });
+}, [onLocationFoundForModal]);
 
 
   useEffect(() => {
@@ -508,12 +524,14 @@ export default function Map({
         )}
 
         {tempSearchMarker && (
+          
             <Marker
                 position={tempSearchMarker.latlng}
                 eventHandlers={{
                     click: handleSelectTempMarker,
                 }}
             >
+              
                 <Popup>
                     <div className="text-center">
                         <p className="font-semibold mb-2">{tempSearchMarker.address}</p>
@@ -524,8 +542,11 @@ export default function Map({
                             Select this Location
                         </button>
                     </div>
+                    
                 </Popup>
+                
             </Marker>
+            
         )}
 
         {displayVillages.map((village) => (
