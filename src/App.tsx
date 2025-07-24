@@ -1,6 +1,6 @@
 // src/App.tsx
 import {
-  BrowserRouter as Router, // Ensure you are using BrowserRouter
+  BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
@@ -8,34 +8,31 @@ import {
 import Layout from "./components/Layout";
 import Dashboard from "./pages/dashboardPage";
 import MapPage from "./pages/mapPage";
-import ContactsPage from "./pages/contactsPage"; // Assuming ParentsPage is now ContactsPage
+import ContactsPage from "./pages/contactsPage";
 import LoginPage from "./pages/loginPage";
 import SignupPage from "./pages/signupPage";
-import LandingPage from "./pages/LandingPage"; // Import LandingPage
-import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
+import LandingPage from "./pages/LandingPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AuthActionPage from "./pages/AuthActionPage"; // NEW: Import AuthActionPage
 import { AuthProvider } from "./context/AuthContext";
 
 export default function App() {
   return (
-    <Router> {/* Use BrowserRouter here if not already wrapping in main.tsx */}
+    <Router>
       <AuthProvider>
-        {/* Layout wraps all content, including public and protected routes */}
         <Layout>
           <Routes>
-            {/* Public Routes - Accessible to everyone */}
-            <Route path="/" element={<LandingPage />} /> {/* This is the new actual landing page */}
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/auth-action" element={<AuthActionPage />} /> {/* NEW: Add the auth action route */}
 
-            {/* Protected Routes - only accessible after successful login */}
-            {/* All routes inside this <Route> element will use the ProtectedRoute logic */}
             <Route element={<ProtectedRoute />}>
               <Route path="/map" element={<MapPage />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/contacts" element={<ContactsPage />} /> {/* Changed from /parents to /contacts if that's the new name */}
+              <Route path="/contacts" element={<ContactsPage />} />
             </Route>
 
-            {/* Fallback for any unmatched routes - redirects to landing page */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Layout>

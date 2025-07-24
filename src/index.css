@@ -7,6 +7,23 @@
 @import "tw-animate-css";
 @import 'tailwind-scrollbar-hide/v4';
 
+/* Custom classes for form fields */
+@layer components {
+  .input-field {
+    @apply border rounded w-full p-2
+           focus:outline-none focus:ring-2 focus:ring-blue-500
+           transition duration-150 ease-in-out
+           border-gray-300 text-gray-800 bg-white;
+  }
+  .input-invalid {
+    @apply border-red-600 focus:ring-red-500;
+  }
+}
+
+/* Optional: Styles for modal open state to prevent body scroll */
+body.overflow-hidden {
+  overflow: hidden;
+}
 
 :root {
   /* Moved from @theme inline */

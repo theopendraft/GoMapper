@@ -1,11 +1,16 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+// src/context/AuthContext.tsx
+import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import {
   getAuth,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
+  sendPasswordResetEmail,
+  GoogleAuthProvider,
+  signInWithPopup,
   User,
+  UserCredential, // NEW: Import UserCredential
 } from "firebase/auth";
 import { app } from "../services/firebase";
 
@@ -15,13 +20,22 @@ export interface AuthContextProps {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string) => Promise<void>;
+  // FIX: Change return type of signup from Promise<void> to Promise<UserCredential>
+  signup: (email: string, password: string) => Promise<UserCredential>;
   logout: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextProps | null>(null);
 
-export const useAuth = () => useContext(AuthContext)!;
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === null) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -36,19 +50,59 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error: any) {
+      throw error;
+    }
   };
 
   const signup = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      return userCredential; // Now correctly returns UserCredential
+    } catch (error: any) {
+      throw error;
+    }
   };
 
   const logout = async () => {
-    await signOut(auth);
+    try {
+      await signOut(auth);
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
+  const resetPassword = async (email: string) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
+  const value: AuthContextProps = {
+    user,
+    loading,
+    login,
+    signup,
+    logout,
+    signInWithGoogle,
+    resetPassword,
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider value={value}>
       {!loading && children}
     </AuthContext.Provider>
   );
