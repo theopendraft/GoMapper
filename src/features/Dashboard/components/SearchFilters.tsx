@@ -20,7 +20,7 @@ export default function SearchFilters({
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-      <div className="mt-2 space-x-2">
+      <div className="grid md:grid-cols-4 grid-cols-1 gap-3 mt-2 w-full " role="group" aria-label="Filter villages by status">
         {["all", "visited", "planned", "not_visited"].map((s) => (
           <Button
             key={s}

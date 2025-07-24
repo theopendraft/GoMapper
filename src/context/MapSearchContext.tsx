@@ -1,7 +1,7 @@
 // src/context/MapSearchContext.tsx
 
 import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode, Dispatch, SetStateAction } from 'react';
-import { onSnapshot, doc, setDoc, addDoc } from 'firebase/firestore'; // Removed query, where as they're not directly used here
+import { onSnapshot, doc, setDoc, addDoc } from 'firebase/firestore';
 import { getUserProjectsCollection } from '../services/firebase';
 import { AuthContextProps, useAuth } from './AuthContext';
 import { Project } from '../types/project';
@@ -17,6 +17,7 @@ interface MapSearchContextType {
   handleClearLocationFound: () => void;
   triggerMapSearchControlVisibility: (isVisible: boolean) => void;
   requestSearchModalClose: () => void;
+  openSearchModal: () => void; // Added to interface for type safety
 
   currentUser: User | null;
   currentProjectId: string | null;
@@ -40,6 +41,7 @@ export const useMapSearch = () => {
 export const MapSearchProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user: currentUser, loading: authLoading } = useAuth() as AuthContextProps;
 
+  // State declarations for the context provider
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isMapSearchControlVisible, setIsMapSearchControlVisible] = useState(false);
   const [locationFoundForModalDisplay, setLocationFoundForModalDisplay] = useState<{ lat: number; lng: number; address: string } | null>(null);
@@ -48,7 +50,13 @@ export const MapSearchProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [userProjects, setUserProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
 
-  // FIX: Removed currentProjectId from dependency array
+  // FIX: Move openSearchModal inside the component, after state declarations
+  const openSearchModal = useCallback(() => {
+    setIsSearchModalOpen(true);
+    setLocationFoundForModalDisplay(null); // Clear previous messages
+  }, [setIsSearchModalOpen, setLocationFoundForModalDisplay]); // Dependencies are now in scope
+
+  // Effect to fetch user's projects when currentUser changes
   useEffect(() => {
     if (currentUser && currentUser.uid) {
       setLoadingProjects(true);
@@ -60,19 +68,13 @@ export const MapSearchProvider: React.FC<{ children: ReactNode }> = ({ children 
         setUserProjects(projects);
         setLoadingProjects(false);
 
-        // Auto-select the first project if the user has projects and NO project is currently selected,
-        // OR if the currently selected project is no longer in the list (e.g., deleted).
-        // This logic needs to be careful not to re-trigger the effect unnecessarily.
         if (projects.length > 0) {
-          // Check if currentProjectId is valid within the new list of projects
           const isCurrentProjectStillValid = currentProjectId && projects.some(p => p.id === currentProjectId);
           if (!isCurrentProjectStillValid) {
-            // If current project ID is not valid or not set, select the first one
             setCurrentProjectId(projects[0].id);
           }
         } else {
-          // If no projects, ensure currentProjectId is null
-          if (currentProjectId !== null) { // Prevent unnecessary state update
+          if (currentProjectId !== null) {
              setCurrentProjectId(null);
           }
         }
@@ -83,12 +85,12 @@ export const MapSearchProvider: React.FC<{ children: ReactNode }> = ({ children 
       return () => unsubscribe();
     } else {
       setUserProjects([]);
-      if (currentProjectId !== null) { // Prevent unnecessary state update
+      if (currentProjectId !== null) {
         setCurrentProjectId(null);
       }
       setLoadingProjects(false);
     }
-  }, [currentUser]); // <-- FIX: Only depend on currentUser
+  }, [currentUser, currentProjectId]); // currentProjectId is still a dependency because its value affects auto-selection logic within this effect
 
   const handleClearLocationFound = useCallback(() => {
     setLocationFoundForModalDisplay(null);
@@ -101,12 +103,12 @@ export const MapSearchProvider: React.FC<{ children: ReactNode }> = ({ children 
   const requestSearchModalClose = useCallback(() => {
       setIsSearchModalOpen(false);
       setLocationFoundForModalDisplay(null);
-  }, []);
+  }, [setIsSearchModalOpen, setLocationFoundForModalDisplay]); // Add dependencies
 
   const handleLocationSelectedFromMapSearchAndCloseModal = useCallback((location: { lat: number; lng: number; address: string }) => {
     setIsSearchModalOpen(false);
     setLocationFoundForModalDisplay(null);
-  }, []);
+  }, [setIsSearchModalOpen, setLocationFoundForModalDisplay]); // Add dependencies
 
   const createProject = useCallback(async (projectName: string): Promise<string> => {
     if (!currentUser || !currentUser.uid) {
@@ -118,7 +120,6 @@ export const MapSearchProvider: React.FC<{ children: ReactNode }> = ({ children 
       ownerId: currentUser.uid,
       createdAt: Date.now(),
     });
-    // setCurrentProjectId(newProjectRef.id); // The onSnapshot listener will handle auto-selection
     return newProjectRef.id;
   }, [currentUser]);
 
@@ -132,6 +133,7 @@ export const MapSearchProvider: React.FC<{ children: ReactNode }> = ({ children 
     handleClearLocationFound,
     triggerMapSearchControlVisibility,
     requestSearchModalClose,
+    openSearchModal, // Now correctly in scope
     currentUser,
     currentProjectId,
     setCurrentProjectId,

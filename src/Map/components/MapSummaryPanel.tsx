@@ -296,7 +296,7 @@ export default function MapSummaryPanel({
         ref={panelRef}
         className={`
           bg-white border shadow-lg flex flex-col
-          fixed bottom-4 md:bottom-[90px] right-3 z-[1010]
+          fixed bottom-40 md:bottom-[90px] right-3 z-[1010]
           h-14 w-14 items-center justify-center p-0 rounded-full
           transition-all duration-300 ease-in-out
           ${panelOpen ? "p-5 h-[80vh] w-12 md:w-[360px] rounded-xl overflow-y-auto" : "items-center justify-center"}
@@ -350,7 +350,7 @@ export default function MapSummaryPanel({
         gap-6
         transition-all
         duration-300 ease-in-out
-        fixed bottom-4 md:bottom-[90px] right-3
+        fixed bottom-56 md:bottom-[160px] right-3
         z-50
         ${
           panelOpen
@@ -363,10 +363,10 @@ export default function MapSummaryPanel({
         width: panelOpen
           ? `${(panelRef.current?.offsetWidth ?? 360)}px`
           : '3.5rem',
-        minWidth: panelOpen ? "220px" : "3.5rem",
+        minWidth: panelOpen ? "250px" : "3.5rem",
         maxWidth: panelOpen ? "600px" : "3.5rem",
         minHeight: panelOpen ? "300px" : "3.5rem",
-        height: panelOpen ? "80vh" : "3.5rem",
+        height: panelOpen ? "70vh" : "3.5rem",
         userSelect: isResizing.current ? "none" : "auto",
         display: "flex",
       }}
@@ -377,14 +377,17 @@ export default function MapSummaryPanel({
         className={`
           transition-colors duration-300
           absolute z-50 rounded-full
-          bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800
+          bg-gray-100 text-gray-600 hover:bg-gray-200 hover:max-w-xs group-hover:ml-3 hover:text-gray-800
           flex items-center justify-center
           ${panelOpen ? "top-4 right-4 p-2" : "inset-0 m-auto w-14 h-14"}
         `}
         onClick={togglePanel}
         aria-label={panelOpen ? "Close Summary Panel" : "Open Summary Panel"}
       >
-        <TfiMenuAlt size={22} />
+        
+          <TfiMenuAlt size={22} />
+
+
       </button>
 
       {panelOpen && (
@@ -506,7 +509,7 @@ export default function MapSummaryPanel({
               Pins
             </div>
 
-            <ul className="overflow-y-auto space-y-3 max-h-full flex-1 min-h-0">
+            <ul className="overflow-y-auto space-y-3 max-h-full flex-1 min-h-0 scrollbar-hide">
               {/* Removed internal loading state check for this part, as overall 'loading' handles it */}
               {filteredVillages.length === 0 ? (
                 <li
@@ -521,7 +524,7 @@ export default function MapSummaryPanel({
                   (v) => (
                     <li
                       key={v.id}
-                      className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between shadow hover:bg-blue-50 transition select-text"
+                      className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between shadow hover:bg-blue-50 transition select-text scrollbar-hide"
                       tabIndex={0}
                     >
                       <div className="flex flex-col gap-1">

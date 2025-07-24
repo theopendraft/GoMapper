@@ -1,21 +1,17 @@
 // src/components/modals/EditVillageModal.tsx
 import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
-// FIX: Import Parent and ExtendedParent from types/parent.ts
 import { Parent, ExtendedParent } from "../../types/parent";
-// FIX: Import Village and VillageStatus from types/village.ts
 import { Village, VillageStatus } from "../../types/village";
 import { doc, setDoc } from "firebase/firestore";
-// FIX: Ensure getProjectPinsCollection is imported correctly
 import { db, getProjectPinsCollection } from "../../services/firebase";
 import { toast } from 'react-toastify';
-import { FiPlus, FiMinus, FiSave, FiX } from 'react-icons/fi';
+import { FiPlus, FiMinus, FiSave, FiX, FiChevronDown, FiChevronUp } from 'react-icons/fi'; // Import new icons
 
 interface EditVillageModalProps {
   village: Village;
   onClose: () => void;
   onSave: (updatedVillage: Village) => void;
-  // These props are crucial for Firebase interaction
   currentUserUid: string | null;
   currentProjectId: string | null;
 }
@@ -36,15 +32,16 @@ export function EditVillageModal({
 }: EditVillageModalProps) {
   // State variables for form fields
   const [villageName, setVillageName] = useState(village.name);
-  // FIX: Cast initial status value to VillageStatus
   const [status, setStatus] = useState<VillageStatus>(village.status);
   const [notes, setNotes] = useState(village.notes || "");
-  const [lastVisit, setLastVisit] = useState(village.lastVisit || ""); // Based on types/village.ts
-  const [nextVisitTarget, setNextVisitTarget] = useState(village.nextVisitTarget || ""); // Based on types/village.ts
-  const [parents, setParents] = useState<ExtendedParent[]>(village.parents || []); // Ensure parents is an array
+  const [lastVisit, setLastVisit] = useState(village.lastVisit || "");
+  const [nextVisitTarget, setNextVisitTarget] = useState(village.nextVisitTarget || "");
+  const [parents, setParents] = useState<ExtendedParent[]>(village.parents || []);
   const [tehsil, setTehsil] = useState(village.tehsil || "");
-  // Use `''` for empty population to distinguish from `0` and make input controlled
   const [population, setPopulation] = useState<number | ''>(village.population ?? '');
+
+  // State to manage the visibility of additional details
+  const [showAdditionalDetails, setShowAdditionalDetails] = useState(false);
 
   // State to track which fields have been blurred (for validation feedback)
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
@@ -139,23 +136,20 @@ export function EditVillageModal({
     const updatedVillage: Village = {
       ...village, // Spread existing village properties (id, projectId, coords etc.)
       name: villageName.trim(),
-      status: status, // Status is already typed as VillageStatus
+      status: status,
       notes: notes || undefined, // Use `undefined` for Firestore to omit field if empty
       lastVisit: lastVisit || undefined,
       nextVisitTarget: nextVisitTarget || undefined,
       tehsil: tehsil || undefined,
       population: population === '' ? undefined : population,
       parents: filteredParents,
-      // The original `village` object passed to the modal already contains `projectId` and `coords`.
-      // When creating a new pin, `Map.tsx` correctly sets `village.projectId` and `village.coords`
-      // before passing it to the modal. So no explicit `projectId: currentProjectId!` needed here.
     };
 
     // Prepare data for Firestore: remove any properties that are explicitly `undefined`
     // Firestore does not allow `undefined` values.
     const finalVillageData: { [key: string]: any } = {};
     for (const key in updatedVillage) {
-        if (Object.prototype.hasOwnProperty.call(updatedVillage, key)) { // Ensure it's not a prototype property
+        if (Object.prototype.hasOwnProperty.call(updatedVillage, key)) {
             const value = updatedVillage[key as keyof Village];
             if (value !== undefined) {
                 finalVillageData[key] = value;
@@ -166,15 +160,14 @@ export function EditVillageModal({
     // Check for user authentication and project selection before saving
     if (!currentUserUid || !currentProjectId) {
         toast.error("User not authenticated or project not selected. Cannot save pin.");
-        // onClose(); // Optionally close modal if unable to save
         return;
     }
 
     try {
         const pinDocRef = doc(getProjectPinsCollection(currentUserUid, currentProjectId), village.id.toString());
-        await setDoc(pinDocRef, finalVillageData); // Save the cleaned object to Firestore
-        onSave(updatedVillage); // Call onSave prop with the updated local object
-        onClose(); // Close the modal
+        await setDoc(pinDocRef, finalVillageData);
+        onSave(updatedVillage);
+        onClose();
         toast.success("Pin details updated successfully!");
     } catch (err: any) {
         console.error("Failed to save pin details:", err);
@@ -187,33 +180,33 @@ export function EditVillageModal({
     <div
       ref={modalRef}
       onClick={onOverlayClick}
-      className="fixed inset-0 bg-black bg-opacity-50 z-[99999] flex items-center justify-center p-4"
+      className="fixed inset-0 mt-4 bg-black bg-opacity-50 z-[99999] flex items-center justify-center p-4 overflow-y-auto"
       aria-modal="true"
       role="dialog"
       aria-labelledby="modal-title"
     >
       <div
-        className="bg-white rounded-lg shadow-2xl w-full max-w-md sm:max-w-lg md:max-w-xl p-6 mx-auto my-8 max-h-[95vh] overflow-auto transform transition-all duration-300 ease-out sm:scale-100 opacity-100"
-        onClick={(e) => e.stopPropagation()} // Prevent clicks inside modal from closing it
+        className="bg-white rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl p-6 mx-auto my-8 max-h-[95vh] overflow-y-auto transform transition-all duration-300 ease-out sm:scale-100 opacity-100 border border-gray-200"
+        onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center pb-3 mb-4 border-b border-gray-200">
-          <h2 id="modal-title" className="text-xl font-bold text-gray-800">
+        <div className="flex justify-between items-center pb-4 mb-4 border-b border-gray-200">
+          <h2 id="modal-title" className="text-2xl font-extrabold text-gray-800">
             Edit Pin Details
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-1 transition-colors"
+            className="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-2 transition-colors duration-200"
             aria-label="Close"
           >
-            <FiX size={20} />
+            <FiX size={24} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Pin Name */}
           <div>
-            <label htmlFor="village-name" className="block font-medium text-gray-700 mb-1">
+            <label htmlFor="village-name" className="block text-sm font-semibold text-gray-700 mb-1">
               Pin Name<span className="text-red-600">*</span>
             </label>
             <input
@@ -222,16 +215,16 @@ export function EditVillageModal({
               value={villageName}
               onChange={(e) => setVillageName(e.target.value)}
               onBlur={() => markTouched("villageName")}
-              className={`border rounded w-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 ease-in-out ${
+              className={`block w-full px-3 py-2 border rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out sm:text-sm ${
                 touched.villageName && !isValidVillageName
-                  ? "border-red-600"
+                  ? "border-red-500"
                   : "border-gray-300"
               }`}
               autoComplete="off"
               required
             />
             {touched.villageName && !isValidVillageName && (
-              <p className="text-red-600 text-sm mt-1">
+              <p className="text-red-500 text-xs mt-1">
                 Pin name is required.
               </p>
             )}
@@ -239,17 +232,17 @@ export function EditVillageModal({
 
           {/* Status Dropdown */}
           <div>
-            <label htmlFor="status" className="block font-medium text-gray-700 mb-1">
+            <label htmlFor="status" className="block text-sm font-semibold text-gray-700 mb-1">
               Status<span className="text-red-600">*</span>
             </label>
             <select
               id="status"
               value={status}
-              onChange={(e) => setStatus(e.target.value as VillageStatus)} // Cast to VillageStatus
+              onChange={(e) => setStatus(e.target.value as VillageStatus)}
               onBlur={() => markTouched("status")}
-              className={`border rounded w-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 ease-in-out ${
+              className={`block w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out sm:text-sm ${
                 touched.status && !isValidStatus
-                  ? "border-red-600"
+                  ? "border-red-500"
                   : "border-gray-300"
               }`}
               required
@@ -260,188 +253,204 @@ export function EditVillageModal({
               <option value="not-visited">Not Visited</option>
             </select>
             {touched.status && !isValidStatus && (
-              <p className="text-red-600 text-sm mt-1">Status is required.</p>
+              <p className="text-red-500 text-xs mt-1">Status is required.</p>
             )}
           </div>
 
-          {/* Tehsil */}
-          <div>
-            <label htmlFor="tehsil" className="block font-medium text-gray-700 mb-1">
-              Tehsil
-            </label>
-            <input
-              id="tehsil"
-              type="text"
-              value={tehsil}
-              onChange={(e) => setTehsil(e.target.value)}
-              className="border rounded w-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300"
-              placeholder="e.g., Your Tehsil"
-            />
-          </div>
-
-          {/* Population */}
-          <div>
-            <label htmlFor="population" className="block font-medium text-gray-700 mb-1">
-              Population
-            </label>
-            <input
-              id="population"
-              type="number"
-              value={population}
-              onChange={(e) => setPopulation(Number(e.target.value) || '')}
-              className="border rounded w-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300"
-              placeholder="e.g., 5000"
-              min="0"
-            />
-          </div>
-
-          {/* Notes */}
-          <div>
-            <label htmlFor="notes" className="block font-medium text-gray-700 mb-1">
-              Notes
-            </label>
-            <textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="border rounded w-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300"
-              rows={3}
-              placeholder="Any additional notes about this pin..."
-            />
-          </div>
-
-          {/* Last Visit Date */}
-          <div>
-            <label htmlFor="lastVisit" className="block font-medium text-gray-700 mb-1">
-              Last Visit Date
-            </label>
-            <input
-              type="date"
-              id="lastVisit"
-              value={lastVisit}
-              onChange={(e) => setLastVisit(e.target.value)}
-              className="border rounded w-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300"
-            />
-          </div>
-
-          {/* Next Visit Target Date */}
-          <div>
-            <label htmlFor="nextVisitTarget" className="block font-medium text-gray-700 mb-1">
-              Next Visit Target Date
-            </label>
-            <input
-              type="date"
-              id="nextVisitTarget"
-              value={nextVisitTarget}
-              onChange={(e) => setNextVisitTarget(e.target.value)}
-              className="border rounded w-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300"
-            />
-          </div>
-
-          {/* Parent Contacts Section */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Parent Contacts</h3>
-            {parents.map((parent, index) => (
-              <div
-                key={index}
-                className="flex flex-col md:flex-row gap-2 md:gap-4 items-end mb-3 p-3 border border-gray-200 rounded-lg bg-gray-50"
-              >
-                <div className="flex-1 w-full">
-                  <label
-                    htmlFor={`parent-name-${index}`}
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Name
-                  </label>
-                  <input
-                    id={`parent-name-${index}`}
-                    type="text"
-                    value={parent.name}
-                    onChange={(e) =>
-                      handleParentChange(index, "name", e.target.value)
-                    }
-                    onBlur={() => markTouched(`parentName${index}`)}
-                    className={`border rounded w-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 ease-in-out ${
-                      touched[`parentName${index}`] &&
-                      parent.name.trim().length === 0 && parent.contact.trim().length > 0
-                        ? "border-red-600"
-                        : "border-gray-300"
-                    }`}
-                    placeholder="Enter parent name"
-                  />
-                  {touched[`parentName${index}`] && parent.name.trim().length === 0 && parent.contact.trim().length > 0 && (
-                    <p className="text-red-600 text-sm mt-1">
-                      Name is required if contact is filled.
-                    </p>
-                  )}
-                </div>
-                <div className="flex-1 w-full">
-                  <label
-                    htmlFor={`parent-contact-${index}`}
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Contact
-                  </label>
-                  <input
-                    id={`parent-contact-${index}`}
-                    type="text"
-                    value={parent.contact}
-                    onChange={(e) =>
-                      handleParentChange(index, "contact", e.target.value)
-                    }
-                    onBlur={() => markTouched(`parentContact${index}`)}
-                    className={`border rounded w-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 ease-in-out ${
-                      touched[`parentContact${index}`] &&
-                      !isValidPhoneNumber(parent.contact)
-                        ? "border-red-600"
-                        : "border-gray-300"
-                    }`}
-                    placeholder="Enter valid contact number"
-                  />
-                  {touched[`parentContact${index}`] && !isValidPhoneNumber(parent.contact) && (
-                    <p className="text-red-600 text-sm mt-1">
-                      Invalid phone number format (7-15 digits).
-                    </p>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveParent(index)}
-                  className="px-3 py-2 text-red-600 hover:text-red-800 transition-colors self-end sm:self-center -mb-1 md:mb-0"
-                  aria-label={`Remove parent ${index + 1}`}
-                >
-                  <FiMinus size={20} />
-                </button>
-              </div>
-            ))}
+          {/* Additional Details Toggle */}
+          <div className="border-t border-gray-200 pt-4 mt-4">
             <button
               type="button"
-              onClick={handleAddParent}
-              className="px-4 py-2 mt-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-1 transition-colors"
+              onClick={() => setShowAdditionalDetails(!showAdditionalDetails)}
+              className="flex items-center justify-between w-full text-left py-2 px-3 bg-gray-50 rounded-lg text-blue-700 hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <FiPlus size={16} /> Add Contact
+              <span className="text-base font-semibold">Additional Details</span>
+              {showAdditionalDetails ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
             </button>
+
+            {showAdditionalDetails && (
+              <div className="mt-4 space-y-4 transition-all duration-300 ease-in-out">
+                {/* Tehsil */}
+                <div>
+                  <label htmlFor="tehsil" className="block text-sm font-semibold text-gray-700 mb-1">
+                    Tehsil
+                  </label>
+                  <input
+                    id="tehsil"
+                    type="text"
+                    value={tehsil}
+                    onChange={(e) => setTehsil(e.target.value)}
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="e.g., Your Tehsil"
+                  />
+                </div>
+
+                {/* Population */}
+                <div>
+                  <label htmlFor="population" className="block text-sm font-semibold text-gray-700 mb-1">
+                    Population
+                  </label>
+                  <input
+                    id="population"
+                    type="number"
+                    value={population}
+                    onChange={(e) => setPopulation(Number(e.target.value) || '')}
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="e.g., 5000"
+                    min="0"
+                  />
+                </div>
+
+                {/* Last Visit Date */}
+                <div>
+                  <label htmlFor="lastVisit" className="block text-sm font-semibold text-gray-700 mb-1">
+                    Last Visit Date
+                  </label>
+                  <input
+                    type="date"
+                    id="lastVisit"
+                    value={lastVisit}
+                    onChange={(e) => setLastVisit(e.target.value)}
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+
+                {/* Next Visit Target Date */}
+                <div>
+                  <label htmlFor="nextVisitTarget" className="block text-sm font-semibold text-gray-700 mb-1">
+                    Next Visit Target Date
+                  </label>
+                  <input
+                    type="date"
+                    id="nextVisitTarget"
+                    value={nextVisitTarget}
+                    onChange={(e) => setNextVisitTarget(e.target.value)}
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <label htmlFor="notes" className="block text-sm font-semibold text-gray-700 mb-1">
+                    Notes
+                  </label>
+                  <textarea
+                    id="notes"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    rows={3}
+                    placeholder="Any additional notes about this pin..."
+                  />
+                </div>
+
+                {/* Parent Contacts Section */}
+                <div>
+                  <h3 className="text-base font-bold text-gray-800 mb-3">Parent Contacts</h3>
+                  {parents.map((parent, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-col md:flex-row gap-3 md:gap-5 items-end mb-4 p-4 border border-gray-200 rounded-lg bg-gray-50 shadow-sm"
+                    >
+                      <div className="flex-1 w-full">
+                        <label
+                          htmlFor={`parent-name-${index}`}
+                          className="block text-xs font-medium text-gray-600 mb-1"
+                        >
+                          Name
+                        </label>
+                        <input
+                          id={`parent-name-${index}`}
+                          type="text"
+                          value={parent.name}
+                          onChange={(e) =>
+                            handleParentChange(index, "name", e.target.value)
+                          }
+                          onBlur={() => markTouched(`parentName${index}`)}
+                          className={`block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm ${
+                            touched[`parentName${index}`] &&
+                            parent.name.trim().length === 0 && parent.contact.trim().length > 0
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          }`}
+                          placeholder="Enter parent name"
+                        />
+                        {touched[`parentName${index}`] && parent.name.trim().length === 0 && parent.contact.trim().length > 0 && (
+                          <p className="text-red-500 text-xs mt-1">
+                            Name is required if contact is filled.
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex-1 w-full">
+                        <label
+                          htmlFor={`parent-contact-${index}`}
+                          className="block text-xs font-medium text-gray-600 mb-1"
+                        >
+                          Contact
+                        </label>
+                        <input
+                          id={`parent-contact-${index}`}
+                          type="text"
+                          value={parent.contact}
+                          onChange={(e) =>
+                            handleParentChange(index, "contact", e.target.value)
+                          }
+                          onBlur={() => markTouched(`parentContact${index}`)}
+                          className={`block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm ${
+                            touched[`parentContact${index}`] &&
+                            !isValidPhoneNumber(parent.contact)
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          }`}
+                          placeholder="Enter valid contact number"
+                        />
+                        {touched[`parentContact${index}`] && !isValidPhoneNumber(parent.contact) && (
+                          <p className="text-red-500 text-xs mt-1">
+                            Invalid phone number format (7-15 digits).
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveParent(index)}
+                        className="p-2 text-red-600 hover:text-red-800 transition-colors self-center flex-shrink-0"
+                        aria-label={`Remove parent ${index + 1}`}
+                      >
+                        <FiMinus size={20} />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={handleAddParent}
+                    className="px-4 py-2 mt-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2 transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    <FiPlus size={16} /> Add Contact
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3 mt-6">
+          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+              className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!canSave}
-              className={`px-5 py-2 rounded-md text-white flex items-center gap-1 transition-colors ${
+              className={`px-6 py-2 rounded-lg text-white flex items-center gap-2 transition-colors duration-200 font-medium shadow-md ${
                 canSave
-                  ? "bg-blue-600 hover:bg-blue-700"
+                  ? "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   : "bg-blue-300 cursor-not-allowed"
               }`}
             >
-              <FiSave size={16} /> Save
+              <FiSave size={18} /> Save
             </button>
           </div>
         </form>

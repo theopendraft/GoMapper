@@ -7,8 +7,6 @@ import MapSummaryPanel from "../Map/components/MapSummaryPanel"; // Adjust path 
 import { useMapSearch } from "../context/MapSearchContext";
 // Import Navigate for conditional rendering
 import { Navigate } from "react-router-dom";
-// Import User type if needed explicitly for conditional rendering types, though not strictly required here
-// import { User } from 'firebase/auth'; 
 
 export default function MapPage() {
   // Destructure all necessary states and setters from MapSearchContext
@@ -22,6 +20,7 @@ export default function MapPage() {
     setLocationFoundForModalDisplay, // Setter for displaying location info in search modal
     handleLocationSelectedFromMapSearchAndCloseModal, // Callback when a location is selected from map search
     requestSearchModalClose, // Callback to close the search modal (e.g., on outside click)
+    openSearchModal, // NEW: Function to open the SearchModal directly from Map
   } = useMapSearch();
 
   // States for the MapSummaryPanel's internal search and filter inputs
@@ -88,6 +87,8 @@ export default function MapPage() {
           // User and Project context for data access (crucial for fetching/saving/deleting pins)
           currentUser={currentUser}
           currentProjectId={currentProjectId}
+          // NEW PROP: Function to open the SearchModal directly from Map's button
+          openSearchModal={openSearchModal}
         />
       </div>
 
