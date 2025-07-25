@@ -25,12 +25,12 @@ export default function LandingPage() {
 
   // If not logged in, show the landing page content
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-indigo-700 text-white flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-indigo-900 text-white flex flex-col items-center justify-center p-6">
       <h1 className="text-5xl md:text-6xl font-extrabold mb-4 text-center">
-        Welcome to Go Mapper
+        Welcome to GoMapper
       </h1>
       <p className="text-xl md:text-2xl mb-8 text-center max-w-2xl">
-        Organize your locations and pins into projects, accessible only by you.
+        Organize your locations, accessible only by you.
       </p>
       <div className="space-x-4">
         <button
@@ -47,7 +47,7 @@ export default function LandingPage() {
         </button>
       </div>
       <footer className="absolute bottom-4 text-sm text-gray-200">
-        &copy; {new Date().getFullYear()} Go Mapper. All rights reserved.
+        &copy; {new Date().getFullYear()} GoMapper. All rights reserved.
       </footer>
     </div>
   );

@@ -29,7 +29,8 @@ import 'leaflet-geosearch/dist/geosearch.css';
 
 import { User } from 'firebase/auth';
 // FIX: Import VillageType and ParentType from types
-import { Village as VillageType, Parent as ParentType } from '../../types/village';
+import { Village as VillageType } from '../../types/village';
+import {Parent as ParentType} from '../../types/parent';
 
 
 // Fix for default marker icon issue in Leaflet with bundlers
@@ -638,7 +639,7 @@ export default function Map({
         autoClose={2000}
         icon={<FiCheckCircle className="text-green-500 w-6 h-6" />}
         toastClassName={() =>
-          "flex items-center gap-2 rounded-lg bg-white/90 shadow-lg border border-green-200 px-4 py-2 min-h-0 text-sm sm:text-base"
+          "flex items-center gap-2 rounded-lg bg-white/90 shadow-lg border border-green-200 px-4 py-2 min-h-0 text-sm sm:text-base text-gray-800 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
         }
         style={{ top: "4em", left: "2em", minWidth: 0, width: "auto", maxWidth: "90vw" }}
       />

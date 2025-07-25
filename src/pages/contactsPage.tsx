@@ -11,6 +11,7 @@ import { useMapSearch } from "../context/MapSearchContext";
 import { toast } from 'react-toastify';
 import { ToastContainer } from "react-toastify"; // Added ToastContainer
 import "react-toastify/dist/ReactToastify.css"; // Correct CSS import
+import {FiCheckCircle} from "react-icons/fi";
 
 export default function ContactsPage() {
   const [villages, setVillages] = useState<Village[]>([]);
@@ -173,15 +174,15 @@ export default function ContactsPage() {
           ))
         )}
       </div>
-      {/* <ToastContainer
+      <ToastContainer
         position="top-center"
         autoClose={2000}
         icon={<FiCheckCircle className="text-green-500 w-6 h-6" />}
         toastClassName={() =>
-          "flex items-center gap-2 rounded-lg bg-white/90 shadow-lg border border-green-200 px-4 py-2 min-h-0 text-sm sm:text-base"
+          "flex items-center gap-2 rounded-lg bg-white/90 shadow-lg border border-green-200 px-4 py-2 min-h-0 text-sm sm:text-base text-gray-800 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
         }
         style={{ top: "4em", left: "2em", minWidth: 0, width: "auto", maxWidth: "90vw" }}
-      /> */}
+      />
     </div>
   );
 }

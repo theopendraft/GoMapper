@@ -344,9 +344,9 @@ export function EditVillageModal({
                   />
                 </div>
 
-                {/* Parent Contacts Section */}
+                {/* Contacts Section */}
                 <div>
-                  <h3 className="text-base font-bold text-gray-800 mb-3">Parent Contacts</h3>
+                  <h3 className="text-base font-bold text-gray-800 mb-3">Contacts</h3>
                   {parents.map((parent, index) => (
                     <div
                       key={index}

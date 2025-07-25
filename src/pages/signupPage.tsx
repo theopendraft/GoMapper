@@ -7,6 +7,7 @@ import { getAuth, updateProfile } from "firebase/auth"; // auth is imported, but
 import { FiEye, FiEyeOff, FiUser, FiMail, FiLock, FiUserPlus } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { FcGoogle } from 'react-icons/fc';
+import { motion } from "framer-motion";
 
 export default function SignupPage() {
   const { signup, signInWithGoogle } = useAuth() as AuthContextProps;
@@ -89,13 +90,19 @@ export default function SignupPage() {
   
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gray-900 bg-cover bg-center"
-         style={{ backgroundImage: "url('https://source.unsplash.com/random/1920x1080?map,nature')" }}
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-indigo-900 text-white flex flex-col items-center justify-center p-6"
+         //style={{ backgroundImage: "url('https://source.unsplash.com/random/1920x1080?map,nature')" }}
     >
       {/* Background Overlay with Blur */}
-      <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-filter backdrop-blur-sm"></div>
+      <div className="absolute inset-0  bg-opacity-50 backdrop-filter backdrop-blur-sm"></div>
 
-      <div className="relative bg-white bg-opacity-90 p-8 rounded-xl shadow-2xl w-full max-w-md mx-auto my-8 transform transition-all duration-300 ease-out scale-100 opacity-100 z-10">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+        className="relative bg-white bg-opacity-90 p-8 rounded-xl shadow-2xl w-full max-w-md mx-auto my-8 transform transition-all duration-300 ease-out scale-100 opacity-100 z-10"
+      >
+
         <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Create Your Account</h2>
         
         {error && <p className="text-red-600 text-sm mb-4 text-center">{error}</p>}
@@ -215,7 +222,7 @@ export default function SignupPage() {
             Login
           </Link>
         </p>
-      </div>
+</motion.div>
     </div>
   );
 }

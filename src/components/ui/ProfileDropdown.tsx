@@ -1,99 +1,79 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useAuth } from "../../context/AuthContext";
-import {
-  FiUser,
-  FiLogOut,
-  FiSettings,
-  FiHelpCircle,
-  FiMoreVertical,
-} from "react-icons/fi";
-import { RiMagicLine } from "react-icons/ri";
-import { HiOutlineArrowUpRight } from "react-icons/hi2";
-import { Link } from "react-router-dom";
+// src/components/ui/ProfileDropdown.tsx
+import React, { useState, useEffect, useRef } from 'react'; // FIX: Add useRef here
+import { FiLogOut, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { useAuth } from '../../context/AuthContext'; // Adjust path if needed
+import { AuthContextProps } from '../../context/AuthContext'; // Adjust path if needed
+import { motion } from "framer-motion";
 
-export default function ProfileDropdown() {
-  const { user, logout } = useAuth();
-  const [open, setOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+// Define the props interface for ProfileDropdown
+interface ProfileDropdownProps {
+  onLogout: () => Promise<void>; // This prop must be declared
+}
 
-  const toggleDropdown = () => setOpen(!open);
+export default function ProfileDropdown({ onLogout }: ProfileDropdownProps) {
+  const { user } = useAuth() as AuthContextProps;
+  const [isOpen, setIsOpen] = useState(false); // State to control dropdown visibility
+  const dropdownRef = useRef<HTMLDivElement>(null); // Ref for click outside
 
+  const toggleDropdown = () => setIsOpen(!isOpen);
+
+  // Close dropdown when clicking outside
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
-        setOpen(false);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
       }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
-  if (!user) return null;
+
+  if (!user) {
+    return null; // Or render a placeholder if ProfileDropdown should always be visible
+  }
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative profile-dropdown" ref={dropdownRef}>
       <button
         onClick={toggleDropdown}
-        className="w-9 h-9 rounded-full border bg-gray-200 hover:ring-2 ring-blue-400 overflow-hidden"
+        className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold hover:bg-blue-200 transition"
+        aria-label="User profile menu"
+        aria-haspopup="true"
+        aria-expanded={isOpen}
       >
-        <img
-          src={`https://ui-avatars.com/api/?name=${
-            user.displayName || "U"
-          }&background=0D8ABC&color=fff`}
-          alt="avatar"
-          className="w-full h-full object-cover"
-        />
+        <span className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-600 text-white text-sm">
+          {user.displayName ? user.displayName.charAt(0).toUpperCase() : (user.email ? user.email.charAt(0).toUpperCase() : 'U')}
+        </span>
+        <span className="hidden md:inline-block truncate max-w-[100px]">{user.displayName || user.email}</span>
+        {isOpen ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
       </button>
 
-      {open && (
-        <div className="absolute right-0 mt-2 w-60 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 text-sm z-[1001] animate-fadeIn">
-          <div className="px-4 py-2 font-semibold text-gray-800 flex items-center gap-2 border-b z-[1001]">
-            <FiUser />
-            {user.email}
+      {isOpen && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.96, y: 0 }}
+                animate={{ opacity: 1, scale: 1, y: 10 }}
+                transition={{ duration: 0.15, ease: "easeInOut" }}
+                className="absolute right-0  mt-6 w-48 bg-white rounded-md shadow-lg py-1 z-50"
+                role="menu"
+              >
+          <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-200">
+            Signed in as <br /> <span className="font-semibold truncate">{user.email}</span>
           </div>
-          <ul className="py-1">
-            <li>
-              <button className="flex items-center w-full px-4 py-2 hover:bg-gray-100 text-gray-700">
-                <HiOutlineArrowUpRight className="mr-2" />
-                Upgrade Plan
-              </button>
-            </li>
-            <li>
-              <button className="flex items-center w-full px-4 py-2 hover:bg-gray-100 text-gray-700">
-                <RiMagicLine className="mr-2" />
-                Personalize
-              </button>
-            </li>
-            <li>
-              <Link
-                to="/settings"
-                className="flex items-center px-4 py-2 hover:bg-gray-100 text-gray-700"
-              >
-                <FiSettings className="mr-2" />
-                Settings
-              </Link>
-            </li>
-            <li>
-              <button className="flex items-center w-full px-4 py-2 hover:bg-gray-100 text-gray-700">
-                <FiHelpCircle className="mr-2" />
-                Help
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={logout}
-                className="flex items-center w-full px-4 py-2 hover:bg-red-50 text-red-600"
-              >
-                <FiLogOut className="mr-2" />
-                Log out
-              </button>
-            </li>
-          </ul>
-        </div>
-      )}
+          <button
+            onClick={onLogout}
+            className="w-full text-left px-4 py-2 text-sm text-red-600 flex items-center gap-2 hover:bg-gray-100"
+            role="menuitem"
+          >
+            <FiLogOut size={16} /> Logout
+          </button>
+          {/* Add more profile options here if needed */}
+      </motion.div>
+      )
+
+      }
     </div>
   );
 }
