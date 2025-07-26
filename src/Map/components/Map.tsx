@@ -21,7 +21,7 @@ import { EditVillageModal } from "../../components/modals/EditVillageModal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // FIX: Import FiSearch
-import {FiEdit2, FiTrash2, FiMapPin, FiUsers, FiCalendar, FiBookOpen, FiClock, FiGlobe, FiPlus, FiCheckCircle, FiSearch } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiMapPin, FiUsers, FiCalendar, FiBookOpen, FiClock, FiGlobe, FiPlus, FiCheckCircle, FiSearch } from "react-icons/fi";
 import debounce from "lodash/debounce";
 
 import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
@@ -30,7 +30,7 @@ import 'leaflet-geosearch/dist/geosearch.css';
 import { User } from 'firebase/auth';
 // FIX: Import VillageType and ParentType from types
 import { Village as VillageType } from '../../types/village';
-import {Parent as ParentType} from '../../types/parent';
+import { Parent as ParentType } from '../../types/parent';
 
 
 // Fix for default marker icon issue in Leaflet with bundlers
@@ -88,8 +88,8 @@ const VillagePopup: React.FC<{
       (status === "visited"
         ? "bg-green-100 text-green-700"
         : status === "planned"
-        ? "bg-yellow-100 text-yellow-700"
-        : "bg-red-100 text-red-700")
+          ? "bg-yellow-100 text-yellow-700"
+          : "bg-red-100 text-red-700")
     );
   }
 
@@ -104,8 +104,8 @@ const VillagePopup: React.FC<{
           {village.status === "visited"
             ? "Visited"
             : village.status === "planned"
-            ? "Planned"
-            : "Not Visited"}
+              ? "Planned"
+              : "Not Visited"}
         </span>
       </div>
 
@@ -193,6 +193,40 @@ const AddVillageOnMap: React.FC<{
   return null;
 };
 
+// MapController component
+const MapController: React.FC<{ searchResultLocation?: { lat: number; lng: number; address: string } | null; villagesToFit: Village[] }> = ({ searchResultLocation, villagesToFit }) => { // FIX: Added villagesToFit prop
+  const map = useMap(); // Get the Leaflet map instance from context
+
+  // Effect 1: Adjust map view to the current search marker's location
+  useEffect(() => {
+    if (searchResultLocation) {
+      map.setView([searchResultLocation.lat, searchResultLocation.lng], 14); // Zoom to 14 (a reasonable level for locations)
+      map.invalidateSize(); // Ensure map size is correctly calculated after dynamic changes
+    }
+  }, [searchResultLocation, map]);
+
+  // FIX: Effect 2: Fit map to bounds of all visible villages
+  useEffect(() => {
+    if (villagesToFit.length > 0) {
+      // Create a LatLngBounds object
+      const bounds = L.latLngBounds(villagesToFit.map(village => village.coords));
+
+      // Fit the map to these bounds
+      // Add padding to prevent markers from being too close to the edge
+      map.fitBounds(bounds, { padding: [50, 50] }); // Adjust padding as needed
+      map.invalidateSize(); // Important if map container size changes dynamically
+    }
+    // else if (villagesToFit.length === 0) {
+    //    // Optional: If no pins, reset to a default view or center of country
+    //    map.setView([22.68411, 77.26887], 5); // Example: reset to a wider view of India
+    //    map.invalidateSize();
+    // }
+  }, [villagesToFit, map]); // Depend on villagesToFit and map instance
+
+  return null; // This component doesn't render anything visually
+};
+
+
 // GeoSearchControlManager component (responsible for leaflet-geosearch lifecycle)
 const GeoSearchControlManager: React.FC<{
   isActive: boolean;
@@ -210,9 +244,9 @@ const GeoSearchControlManager: React.FC<{
     const locationData = event.location || event.result || event; // Robustly get location data
 
     if (!locationData || typeof locationData.x === 'undefined' || typeof locationData.y === 'undefined' || typeof locationData.label === 'undefined') {
-        console.error("Invalid location data received from geosearch event:", locationData);
-        toast.error("Location search failed or returned invalid data.");
-        return;
+      console.error("Invalid location data received from geosearch event:", locationData);
+      toast.error("Location search failed or returned invalid data.");
+      return;
     }
     onLocationFound(locationData);
   }, [onLocationFound]);
@@ -275,7 +309,7 @@ const GeoSearchControlManager: React.FC<{
   const handleClickOutside = React.useCallback((e: L.LeafletMouseEvent) => {
     // Only proceed if search control is actually present and active
     if (!isActive || !searchControlRef.current) {
-        return;
+      return;
     }
 
     const searchControlElement = searchControlRef.current.getContainer(); // Get the DOM element of the search bar
@@ -458,7 +492,7 @@ export default function Map({
       onLocationFoundForModal(null); // Clear any search modal messages
     } catch (err: any) {
       console.error("Failed to save pin:", err);
-      
+
     }
   };
 
@@ -541,9 +575,9 @@ export default function Map({
   // This check is already done in MapPage, but good to have a fallback
   if (!currentProjectId) {
     return (
-        <div className="flex justify-center items-center h-full w-full bg-gray-100 text-lg text-gray-700 text-center p-4">
-            No project selected. Please select or create a project using the sidebar.
-        </div>
+      <div className="flex justify-center items-center h-full w-full bg-gray-100 text-lg text-gray-700 text-center p-4">
+        No project selected. Please select or create a project using the sidebar.
+      </div>
     );
   }
 
@@ -601,22 +635,28 @@ export default function Map({
         zoom={11} // Default zoom level
         className={`h-full w-full z-10 ${ // Map container fills parent and has base z-index
           (addingVillage && !newVillageCoords && !tempSearchMarker) ? "cursor-crosshair" : "" // Crosshair cursor when adding by click
-        }`}
+          }`}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+
+        {/* FIX: Pass displayVillages to MapController */}
+        <MapController
+          searchResultLocation={undefined} // searchResultLocation is now managed by MapController based on props
+          villagesToFit={displayVillages} // <-- Pass the filtered/displayed villages
         />
 
         {/* Component to manage the Leaflet-geosearch control */}
         <GeoSearchControlManager
-            isActive={isSearchActive} // Controls whether search bar is visible on map
-            onLocationFound={handleGeoSearchLocationFound} // Callback when a location is found
-            onVisibilityChange={onSearchControlVisibilityChange} // Reports visibility status back
-            currentMarkerLocation={tempSearchMarker ? tempSearchMarker.latlng : null} // Tells where to center map
-            onRequestModalClose={onRequestModalClose} // Handles clicks outside search bar to close modal
+          isActive={isSearchActive} // Controls whether search bar is visible on map
+          onLocationFound={handleGeoSearchLocationFound} // Callback when a location is found
+          onVisibilityChange={onSearchControlVisibilityChange} // Reports visibility status back
+          currentMarkerLocation={tempSearchMarker ? tempSearchMarker.latlng : null} // Tells where to center map
+          onRequestModalClose={onRequestModalClose} // Handles clicks outside search bar to close modal
         />
-        
+
         {/* UI for adding a new pin by clicking directly on the map */}
         {addingVillage && !newVillageCoords && !tempSearchMarker && (
           <>
@@ -629,24 +669,24 @@ export default function Map({
 
         {/* Temporary Marker for search results */}
         {tempSearchMarker && (
-            <Marker
-                position={tempSearchMarker.latlng} // Position the marker
-                eventHandlers={{
-                    click: handleSelectTempMarker, // Click the marker to confirm selection
-                }}
-            >
-                <Popup>
-                    <div className="text-center">
-                        <p className="font-semibold mb-2">{tempSearchMarker.address}</p>
-                        <button
-                            onClick={handleSelectTempMarker}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
-                        >
-                            Select this Location
-                        </button>
-                    </div>
-                </Popup>
-            </Marker>
+          <Marker
+            position={tempSearchMarker.latlng} // Position the marker
+            eventHandlers={{
+              click: handleSelectTempMarker, // Click the marker to confirm selection
+            }}
+          >
+            <Popup>
+              <div className="text-center">
+                <p className="font-semibold mb-2">{tempSearchMarker.address}</p>
+                <button
+                  onClick={handleSelectTempMarker}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
+                >
+                  Select this Location
+                </button>
+              </div>
+            </Popup>
+          </Marker>
         )}
 
         {/* Render all fetched village pins */}
