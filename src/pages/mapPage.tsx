@@ -1,4 +1,3 @@
-// src/pages/mapPage.tsx
 import React, { useState } from "react";
 // Direct import of Map and MapSummaryPanel from their respective paths
 import Map from "../Map/components/Map"; // Adjust path if different
@@ -7,6 +6,7 @@ import MapSummaryPanel from "../Map/components/MapSummaryPanel"; // Adjust path 
 import { useMapSearch } from "../context/MapSearchContext";
 // Import Navigate for conditional rendering
 import { Navigate } from "react-router-dom";
+
 
 export default function MapPage() {
   // Destructure all necessary states and setters from MapSearchContext
@@ -53,8 +53,31 @@ export default function MapPage() {
   // This might happen for a brand new user who hasn't created any projects yet.
   if (!currentProjectId) {
     return (
-      <div className="flex justify-center items-center h-full w-full text-lg text-gray-700 text-center p-4 bg-gray-100">
-        <p>No project selected. Please use the sidebar (top-left menu icon) to create a new project or select an existing one.</p>
+      <div className="flex flex-col justify-center items-center h-full w-full text-gray-700 text-center p-4 bg-gray-100">
+        {/* You can replace this SVG with a GIF or a more elaborate illustration */}
+        <svg
+          className="w-24 h-24 text-gray-400 mb-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="1.5"
+            d="M9.663 17h4.673M12 3v18m-3-6h6m6 0a9 9 0 11-18 0 9 9 0 0118 0z"
+          ></path>
+        </svg>
+        <p className="text-2xl font-semibold mb-3">Welcome to your Map!</p>
+        <p className="text-lg max-w-md">
+          It looks like you haven't selected a project yet.
+        </p>
+        <p className="text-lg max-w-md mt-2">
+          Please use the <span className="font-medium text-blue-600">sidebar (top-left menu icon)</span> to{" "}
+          <span className="font-medium text-blue-600">create a new project</span> or{" "}
+          <span className="font-medium text-blue-600">select an existing one</span> to start mapping.
+        </p>
       </div>
     );
   }
@@ -64,7 +87,7 @@ export default function MapPage() {
     // The main container for the map and the summary panel.
     // `relative` positioning is crucial for `MapSummaryPanel` which uses `fixed`.
     // `h-full w-full` ensures it takes full available space in the parent (`main` tag in Layout).
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full scrollbar-hide">
       {/*
         Container for the Map component.
         `flex-1 h-full` ensures the map div expands to fill available space

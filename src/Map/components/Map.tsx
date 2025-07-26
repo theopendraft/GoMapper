@@ -31,6 +31,7 @@ import { User } from 'firebase/auth';
 // FIX: Import VillageType and ParentType from types
 import { Village as VillageType } from '../../types/village';
 import { Parent as ParentType } from '../../types/parent';
+import GeolocationControl from './GeolocationControl';
 
 
 // Fix for default marker icon issue in Leaflet with bundlers
@@ -566,7 +567,7 @@ export default function Map({
 
   if (isLoading) {
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gray-100/50 z-[1000]">
+      <div className="absolute inset-0 flex items-center justify-center bg-gray-100/50 z-[1000] scrollbar-hide">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -583,10 +584,10 @@ export default function Map({
 
   // --- Main Map Render ---
   return (
-    <div className="relative h-screen w-full pt-[60px] md:pt-[100px]"> {/* Container for map and floating buttons */}
-      {/* ADD NEW PINS Button (for adding pins by map click) */}
+    <div className="relative h-screen w-full pt-[60px] md:pt-[80px] scrollbar-hide"> {/* Container for map and floating buttons */}
+      {/* ADD NEW PINS Button (for adding pins by map0click) */}
       <button
-        className="fixed bottom-24 md:bottom-6 right-3 z-[1000] flex items-center bg-green-600 text-white rounded-full shadow-lg px-4 py-4 transition-all duration-300 group hover:pr-8 hover:rounded-full "
+        className="fixed bottom-56 md:bottom-[160px] right-3 z-[1000] flex items-center bg-green-600 text-white rounded-full shadow-lg px-4 py-4 transition-all duration-300 group hover:pr-8 hover:rounded-full "
         onClick={() => {
           if (!currentUser || !currentProjectId) {
             toast.error("Please log in and select a project to add pins.");
@@ -612,7 +613,7 @@ export default function Map({
       {/* GLOBAL MAP SEARCH Button */}
       {currentUser && currentProjectId && ( // Only show if user is logged in AND a project is selected
         <button
-          className="fixed bottom-40 md:bottom-[90px] right-3 z-[1000] flex items-center bg-blue-600 text-white rounded-full shadow-lg px-4 py-4 transition-all duration-300 group hover:pr-8 hover:rounded-full"
+          className="fixed bottom-72 md:bottom-56 right-3 z-[1000] flex items-center bg-blue-600 text-white rounded-full shadow-lg px-4 py-4 transition-all duration-300 group hover:pr-8 hover:rounded-full"
           onClick={() => {
             openSearchModal(); // Call the function to open the search modal
           }}
@@ -630,10 +631,12 @@ export default function Map({
       )}
 
 
+
+
       <MapContainer
         center={[22.68411, 77.26887]} // Default map center
         zoom={11} // Default zoom level
-        className={`h-full w-full z-10 ${ // Map container fills parent and has base z-index
+        className={`h-full w-full z-10 scrollbar-hide ${ // Map container fills parent and has base z-index
           (addingVillage && !newVillageCoords && !tempSearchMarker) ? "cursor-crosshair" : "" // Crosshair cursor when adding by click
           }`}
       >
@@ -656,6 +659,19 @@ export default function Map({
           currentMarkerLocation={tempSearchMarker ? tempSearchMarker.latlng : null} // Tells where to center map
           onRequestModalClose={onRequestModalClose} // Handles clicks outside search bar to close modal
         />
+                
+                
+      {currentUser && currentProjectId && (
+    <div className="fixed bottom-40 md:bottom-[90px] right-3 z-[1000]">
+      <GeolocationControl
+        onLocationFound={(latlng) => {
+          // Optional: Do something with the found location in Map.tsx if needed
+          // For now, GeolocationControl handles flying to the location
+          console.log("Geolocation found in Map.tsx:", latlng);
+        }}
+      />
+    </div>
+  )}
 
         {/* UI for adding a new pin by clicking directly on the map */}
         {addingVillage && !newVillageCoords && !tempSearchMarker && (
