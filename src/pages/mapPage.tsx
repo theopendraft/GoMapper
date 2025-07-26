@@ -74,7 +74,7 @@ export default function MapPage() {
         <Map
           // Props for filtering existing pins on the map (controlled by MapSummaryPanel's inputs)
           search={panelSearchQuery}
-          filter={panelFilterType}
+          filter={panelFilterType}  
 
           // Props for the location search feature (controlled via SearchModal/MapSearchContext)
           isSearchActive={isSearchModalOpen} // Activates the search bar when modal is open

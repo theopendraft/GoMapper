@@ -87,7 +87,7 @@ export default function ContactsPage() {
       toast.success("Pin updated successfully");
     } catch (err: any) {
       console.error("Failed to update pin:", err);
-      toast.error("Failed to update pin: " + err.message);
+      toast.error("Failed to update pin");
     }
   };
 
@@ -138,8 +138,8 @@ export default function ContactsPage() {
   }
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen space-y-6">
-      <h1 className="text-3xl font-bold mb-4 text-gray-800">👨‍👩‍👧 Contacts for "{userProjects.find(p => p.id === currentProjectId)?.name || "Current Project"}"</h1>
+    <div className="p-6 bg-gray-100 min-h-screen space-y-6 scrollbar-hide py-20">
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Contacts: "{userProjects.find(p => p.id === currentProjectId)?.name || "Current Project"}"</h1>
 
 {/* Search Input - Moved to DashboardPage directly */}
       <div className="bg-white p-4 rounded-lg shadow-md mb-4">

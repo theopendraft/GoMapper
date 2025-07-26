@@ -125,8 +125,12 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen space-y-6">
-      <h1 className="text-3xl font-bold text-gray-800">📊 Dashboard: {userProjects.find(p => p.id === currentProjectId)?.name || "Current Project"}</h1>
+    <div className="p-6 bg-gray-100 min-h-screen space-y-6 py-20 scrollbar-hide">
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+        Dashboard:{" "}
+        {userProjects.find((p) => p.id === currentProjectId)?.name ||
+          "Current Project"}
+      </h1>
 
       {/* Search Input - Moved to DashboardPage directly */}
       <div className="bg-white p-4 rounded-lg shadow-md mb-4">
@@ -138,12 +142,13 @@ export default function DashboardPage() {
           className="w-full p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
         />
       </div>
-
-      <StatsCards 
-        villages={villages} // Pass all fetched villages to StatsCards
-        currentFilter={filter} // Pass current active filter
-        setFilter={setFilter} // Pass setter to allow StatsCards to change filter
-      />
+      
+        <StatsCards
+          villages={villages} // Pass all fetched villages to StatsCards
+          currentFilter={filter} // Pass current active filter
+          setFilter={setFilter} // Pass setter to allow StatsCards to change filter
+        />
+     
 
       {/* The rest of the dashboard sections will use 'filteredVillages' */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -152,9 +157,8 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <VillageList villages={filteredVillages} />
         <ActivityLog villages={filteredVillages} />
-        
+        <VillageList villages={filteredVillages} />
       </div>
       <ToastContainer
         position="top-center"
@@ -163,7 +167,13 @@ export default function DashboardPage() {
         toastClassName={() =>
           "flex items-center gap-2 rounded-lg bg-white/90 shadow-lg border border-green-200 px-4 py-2 min-h-0 text-sm sm:text-base text-gray-800 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
         }
-        style={{ top: "4em", left: "2em", minWidth: 0, width: "auto", maxWidth: "90vw" }}
+        style={{
+          top: "4em",
+          left: "2em",
+          minWidth: 0,
+          width: "auto",
+          maxWidth: "90vw",
+        }}
       />
     </div>
   );

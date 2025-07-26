@@ -170,8 +170,8 @@ export function EditVillageModal({
         onClose();
         toast.success("Pin details updated successfully!");
     } catch (err: any) {
-        console.error("Failed to save pin details:", err);
-        toast.error("Failed to save pin details: " + err.message);
+        console.error("Failed to save pin details:",);
+   
     }
   };
 
@@ -180,7 +180,7 @@ export function EditVillageModal({
     <div
       ref={modalRef}
       onClick={onOverlayClick}
-      className="fixed inset-0 mt-4 bg-black bg-opacity-50 z-[99999] flex items-center justify-center p-4 overflow-y-auto"
+      className="fixed inset-0 bg-black bg-opacity-50  backdrop-blur-sm z-[99999] flex items-center justify-center p-4 overflow-y-auto"
       aria-modal="true"
       role="dialog"
       aria-labelledby="modal-title"
@@ -190,7 +190,10 @@ export function EditVillageModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center pb-4 mb-4 border-b border-gray-200">
-          <h2 id="modal-title" className="text-2xl font-extrabold text-gray-800">
+          <h2
+            id="modal-title"
+            className="text-2xl font-extrabold text-gray-800"
+          >
             Edit Pin Details
           </h2>
           <button
@@ -206,7 +209,10 @@ export function EditVillageModal({
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Pin Name */}
           <div>
-            <label htmlFor="village-name" className="block text-sm font-semibold text-gray-700 mb-1">
+            <label
+              htmlFor="village-name"
+              className="block text-sm font-semibold text-gray-700 mb-1"
+            >
               Pin Name<span className="text-red-600">*</span>
             </label>
             <input
@@ -224,15 +230,16 @@ export function EditVillageModal({
               required
             />
             {touched.villageName && !isValidVillageName && (
-              <p className="text-red-500 text-xs mt-1">
-                Pin name is required.
-              </p>
+              <p className="text-red-500 text-xs mt-1">Pin name is required.</p>
             )}
           </div>
 
           {/* Status Dropdown */}
           <div>
-            <label htmlFor="status" className="block text-sm font-semibold text-gray-700 mb-1">
+            <label
+              htmlFor="status"
+              className="block text-sm font-semibold text-gray-700 mb-1"
+            >
               Status<span className="text-red-600">*</span>
             </label>
             <select
@@ -264,15 +271,24 @@ export function EditVillageModal({
               onClick={() => setShowAdditionalDetails(!showAdditionalDetails)}
               className="flex items-center justify-between w-full text-left py-2 px-3 bg-gray-50 rounded-lg text-blue-700 hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <span className="text-base font-semibold">Additional Details</span>
-              {showAdditionalDetails ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
+              <span className="text-base font-semibold">
+                Additional Details
+              </span>
+              {showAdditionalDetails ? (
+                <FiChevronUp size={20} />
+              ) : (
+                <FiChevronDown size={20} />
+              )}
             </button>
 
             {showAdditionalDetails && (
               <div className="mt-4 space-y-4 transition-all duration-300 ease-in-out">
                 {/* Tehsil */}
                 <div>
-                  <label htmlFor="tehsil" className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label
+                    htmlFor="tehsil"
+                    className="block text-sm font-semibold text-gray-700 mb-1"
+                  >
                     Tehsil
                   </label>
                   <input
@@ -287,14 +303,19 @@ export function EditVillageModal({
 
                 {/* Population */}
                 <div>
-                  <label htmlFor="population" className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label
+                    htmlFor="population"
+                    className="block text-sm font-semibold text-gray-700 mb-1"
+                  >
                     Population
                   </label>
                   <input
                     id="population"
                     type="number"
                     value={population}
-                    onChange={(e) => setPopulation(Number(e.target.value) || '')}
+                    onChange={(e) =>
+                      setPopulation(Number(e.target.value) || "")
+                    }
                     className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     placeholder="e.g., 5000"
                     min="0"
@@ -303,7 +324,10 @@ export function EditVillageModal({
 
                 {/* Last Visit Date */}
                 <div>
-                  <label htmlFor="lastVisit" className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label
+                    htmlFor="lastVisit"
+                    className="block text-sm font-semibold text-gray-700 mb-1"
+                  >
                     Last Visit Date
                   </label>
                   <input
@@ -317,7 +341,10 @@ export function EditVillageModal({
 
                 {/* Next Visit Target Date */}
                 <div>
-                  <label htmlFor="nextVisitTarget" className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label
+                    htmlFor="nextVisitTarget"
+                    className="block text-sm font-semibold text-gray-700 mb-1"
+                  >
                     Next Visit Target Date
                   </label>
                   <input
@@ -331,7 +358,10 @@ export function EditVillageModal({
 
                 {/* Notes */}
                 <div>
-                  <label htmlFor="notes" className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label
+                    htmlFor="notes"
+                    className="block text-sm font-semibold text-gray-700 mb-1"
+                  >
                     Notes
                   </label>
                   <textarea
@@ -346,7 +376,9 @@ export function EditVillageModal({
 
                 {/* Contacts Section */}
                 <div>
-                  <h3 className="text-base font-bold text-gray-800 mb-3">Contacts</h3>
+                  <h3 className="text-base font-bold text-gray-800 mb-3">
+                    Contacts
+                  </h3>
                   {parents.map((parent, index) => (
                     <div
                       key={index}
@@ -369,17 +401,20 @@ export function EditVillageModal({
                           onBlur={() => markTouched(`parentName${index}`)}
                           className={`block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 text-sm ${
                             touched[`parentName${index}`] &&
-                            parent.name.trim().length === 0 && parent.contact.trim().length > 0
+                            parent.name.trim().length === 0 &&
+                            parent.contact.trim().length > 0
                               ? "border-red-500"
                               : "border-gray-300"
                           }`}
                           placeholder="Enter parent name"
                         />
-                        {touched[`parentName${index}`] && parent.name.trim().length === 0 && parent.contact.trim().length > 0 && (
-                          <p className="text-red-500 text-xs mt-1">
-                            Name is required if contact is filled.
-                          </p>
-                        )}
+                        {touched[`parentName${index}`] &&
+                          parent.name.trim().length === 0 &&
+                          parent.contact.trim().length > 0 && (
+                            <p className="text-red-500 text-xs mt-1">
+                              Name is required if contact is filled.
+                            </p>
+                          )}
                       </div>
                       <div className="flex-1 w-full">
                         <label
@@ -404,11 +439,12 @@ export function EditVillageModal({
                           }`}
                           placeholder="Enter valid contact number"
                         />
-                        {touched[`parentContact${index}`] && !isValidPhoneNumber(parent.contact) && (
-                          <p className="text-red-500 text-xs mt-1">
-                            Invalid phone number format (7-15 digits).
-                          </p>
-                        )}
+                        {touched[`parentContact${index}`] &&
+                          !isValidPhoneNumber(parent.contact) && (
+                            <p className="text-red-500 text-xs mt-1">
+                              Invalid phone number format (7-15 digits).
+                            </p>
+                          )}
                       </div>
                       <button
                         type="button"

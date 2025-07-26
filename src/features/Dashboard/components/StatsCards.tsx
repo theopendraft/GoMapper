@@ -25,7 +25,7 @@ export default function StatsCards({ villages, currentFilter, setFilter }: Props
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"> {/* Responsive grid */}
+    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4"> {/* Responsive grid */}
       {stats.map(({ label, value, color, filterValue }) => (
         <button
           key={label}

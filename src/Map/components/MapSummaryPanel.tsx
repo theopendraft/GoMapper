@@ -366,7 +366,7 @@ export default function MapSummaryPanel({
         minWidth: panelOpen ? "250px" : "3.5rem",
         maxWidth: panelOpen ? "600px" : "3.5rem",
         minHeight: panelOpen ? "300px" : "3.5rem",
-        height: panelOpen ? "70vh" : "3.5rem",
+        height: panelOpen ? "63vh" : "3.5rem",
         userSelect: isResizing.current ? "none" : "auto",
         display: "flex",
       }}

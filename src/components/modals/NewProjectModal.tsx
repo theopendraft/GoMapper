@@ -51,8 +51,8 @@ export default function NewProjectModal({ isOpen, onClose }: NewProjectModalProp
       onClose(); // Close the modal
     } catch (err: any) {
       console.error("Error creating project:", err);
-      setError(err.message || "Failed to create project.");
-      toast.error(err.message || "Failed to create project.");
+      setError("Failed to create project.");
+      toast.error("Failed to create project.");
     } finally {
       setIsCreating(false); // End local loading
     }

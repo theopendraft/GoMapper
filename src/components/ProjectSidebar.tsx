@@ -81,7 +81,7 @@ export default function ProjectSidebar({ isOpen, setIsOpen }: ProjectSidebarProp
       setNewProjectName(''); // Clear temp name
     } catch (error: any) {
       console.error('Error renaming project:', error);
-      toast.error('Failed to rename project: ' + error.message);
+      toast.error('Failed to rename project');
     }
   };
 
@@ -96,7 +96,7 @@ export default function ProjectSidebar({ isOpen, setIsOpen }: ProjectSidebarProp
       // currentProjectId will be auto-updated by MapSearchContext's useEffect
     } catch (error: any) {
       console.error('Error deleting project:', error);
-      toast.error('Failed to delete project: ' + error.message);
+      toast.error('Failed to delete project');
     }
   };
 
@@ -111,7 +111,7 @@ export default function ProjectSidebar({ isOpen, setIsOpen }: ProjectSidebarProp
         ref={sidebarRef} // Attach ref for outside click
         className={`
           fixed inset-y-0 left-0 bg-white text-blue-700 // Base background for the sidebar
-          w-72 transform transition-transform duration-300 ease-in-out
+          w-56 transform transition-transform duration-300 ease-in-out
           p-4 pb-24 md:pb-2 flex flex-col z-[1020] shadow-xl
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
 
@@ -120,10 +120,10 @@ export default function ProjectSidebar({ isOpen, setIsOpen }: ProjectSidebarProp
         `}
       >
         {/* Sidebar Header (for mobile toggle) */}
-        <div className="flex justify-between items-center mb-6 mt-20 md:hidden">
+        <div className="flex justify-between items-center mb-6 mt-14 md:hidden">
           {" "}
           {/* Hide close button on larger screens */}
-          <h2 className="text-2xl font-bold">Your Projects</h2>
+          <h2 className="text-xl font-bold">Your Projects</h2>
           <button
             onClick={() => setIsOpen(false)}
             className="text-gray-400 hover:text-white transition-colors p-1 rounded-full hover:bg-blue-300"
@@ -179,13 +179,13 @@ export default function ProjectSidebar({ isOpen, setIsOpen }: ProjectSidebarProp
             <p className="mb-4">No projects yet.</p>
             <Button
               onClick={() => setIsNewProjectModalOpen(true)}
-              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md flex items-center justify-center"
+              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white md:py-2 md;px-4 px-2 py-1 rounded-md flex items-center justify-center"
             >
               <FiPlus className="mr-2" /> Create First Project
             </Button>
           </div>
         ) : (
-          <ul className="flex-grow overflow-y-auto space-y-2 mb-6 pr-2">
+          <ul className="flex-grow overflow-y-auto space-y-2 mb-6 pr-2 scrollbar-hide">
             {userProjects.map((project: Project) => (
               <li key={project.id}>
                 {editingProjectId === project.id ? (
@@ -199,19 +199,19 @@ export default function ProjectSidebar({ isOpen, setIsOpen }: ProjectSidebarProp
                       onKeyPress={(e) => {
                         if (e.key === "Enter") handleRenameProject(project.id);
                       }}
-                      className="flex-grow p-2 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                      className="flex-grow md:p-2 p-1 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                       autoFocus
                     />
                     <button
                       onClick={() => handleRenameProject(project.id)}
-                      className="p-2 rounded-md text-green-400 hover:bg-gray-700"
+                      className="md:p-2 p-1 rounded-md text-green-400 hover:bg-blue-300"
                       aria-label="Save rename"
                     >
                       <FiCheck size={20} />
                     </button>
                     <button
                       onClick={() => setEditingProjectId(null)}
-                      className="p-2 rounded-md text-red-400 hover:bg-gray-700"
+                      className="md:p-2 p-1 rounded-md text-red-400 hover:bg-blue-300"
                       aria-label="Cancel rename"
                     >
                       <FiX size={20} />
@@ -222,12 +222,12 @@ export default function ProjectSidebar({ isOpen, setIsOpen }: ProjectSidebarProp
                   // Display Mode
                   <div className="group relative flex items-center justify-between hover:bg-gray-100 rounded-md transition-colors duration-200">
                   <div className={`
-                        flex-grow text-left p-3 rounded-md flex items-center
+                        flex-grow text-left md:p-3 p-2 rounded-md flex items-center
                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                        transition-colors duration-200 justify-between
+                        transition-colors duration-200 justify-between 
                         ${
                           project.id === currentProjectId // If this project is currently selected
-                            ? "bg-blue-600 text-white shadow-md" // Selected state: solid blue background, white text, shadow
+                            ? "bg-blue-600 text-white shadow-md " // Selected state: solid blue background, white text, shadow
                             : "bg-gray-100 text-gray-800 hover:bg-gray-200" // Rest state: light gray background, dark text, hover effect
                         }
                       `}>
@@ -235,7 +235,7 @@ export default function ProjectSidebar({ isOpen, setIsOpen }: ProjectSidebarProp
                       onClick={() => handleSelectProject(project.id)}
                       aria-pressed={project.id === currentProjectId}
                     >
-                      <span className="truncate"> {/* Adjusted width for name */}
+                      <span className=" truncate "> {/* Adjusted width for name */}
                         {project.name}
                       </span>
 
@@ -247,7 +247,7 @@ export default function ProjectSidebar({ isOpen, setIsOpen }: ProjectSidebarProp
                     `}>
                       <button
                         onClick={() => { setEditingProjectId(project.id); setNewProjectName(project.name); }}
-                        className="p-2 rounded-md text-green-400 hover:bg-gray-700 hover:text-white" // Adjust text color for contrast
+                        className="pl-2 rounded-md text-green-400 hover:bg-blue-300 hover:text-white" // Adjust text color for contrast
                         aria-label="Rename project"
                         title="Rename Project"
                       >
@@ -255,7 +255,7 @@ export default function ProjectSidebar({ isOpen, setIsOpen }: ProjectSidebarProp
                       </button>
                       <button
                         onClick={() => handleDeleteProject(project.id, project.name)}
-                        className="p-2 rounded-md text-red-400 hover:bg-gray-700 hover:text-red-300"
+                        className="pl-2 rounded-md text-red-400 hover:bg-blue-300 hover:text-red-300"
                         aria-label="Delete project"
                         title="Delete Project"
                       >

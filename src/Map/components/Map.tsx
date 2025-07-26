@@ -21,7 +21,7 @@ import { EditVillageModal } from "../../components/modals/EditVillageModal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // FIX: Import FiSearch
-import { FiPlus, FiCheckCircle, FiSearch } from "react-icons/fi";
+import {FiEdit2, FiTrash2, FiMapPin, FiUsers, FiCalendar, FiBookOpen, FiClock, FiGlobe, FiPlus, FiCheckCircle, FiSearch } from "react-icons/fi";
 import debounce from "lodash/debounce";
 
 import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
@@ -79,40 +79,109 @@ const VillagePopup: React.FC<{
   village: Village;
   onEdit: () => void;
   onDelete: () => void;
-}> = ({ village, onEdit, onDelete }) => (
-  <div className="min-w-[200px]">
-    <h3 className="font-bold text-lg">{village.name}</h3>
-    <p>Status: {village.status}</p>
-    {/* Using lastVisit as per VillageType, ensure consistency in your forms if needed */}
-    <p>Last Visit: {village.lastVisit || "N/A"}</p>
-    <h4 className="font-semibold mt-2">Parents:</h4>
-    {village.parents?.length > 0 ? (
-      <ul className="list-disc ml-5">
-        {village.parents.map((parent, idx) => (
-          <li key={idx}>
-            {parent.name} - {parent.contact}
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <p>No parent data available</p>
-    )}
-    <div className="mt-4 space-x-2">
-      <button
-        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-        onClick={onEdit}
-      >
-        Edit Pin
-      </button>
-      <button
-        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-        onClick={onDelete}
-      >
-        Delete Pin
-      </button>
+}> = ({ village, onEdit, onDelete }) => {
+
+  // Helper function for status badge classes (can be reused from MapSummaryPanel or defined here)
+  function getStatusBadgeClasses(status: Village["status"]) {
+    return (
+      "inline-block px-2 py-0.5 rounded-full text-xs font-medium " +
+      (status === "visited"
+        ? "bg-green-100 text-green-700"
+        : status === "planned"
+        ? "bg-yellow-100 text-yellow-700"
+        : "bg-red-100 text-red-700")
+    );
+  }
+
+  return (
+    <div className="p-2 min-w-[240px] max-w-[300px] font-sans">
+      {/* Header with Pin Name and Status Badge */}
+      <div className="flex items-center justify-between border-b pb-2 mb-2">
+        <h3 className="font-bold text-lg text-gray-800 break-words pr-2">
+          {village.name}
+        </h3>
+        <span className={getStatusBadgeClasses(village.status)}>
+          {village.status === "visited"
+            ? "Visited"
+            : village.status === "planned"
+            ? "Planned"
+            : "Not Visited"}
+        </span>
+      </div>
+
+      {/* Main Details Grid */}
+      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700 mb-3">
+        {village.tehsil && (
+          <div className="flex items-center gap-1">
+            <FiMapPin size={14} className="text-gray-500" />
+            <span>Tehsil: {village.tehsil}</span>
+          </div>
+        )}
+        {typeof village.population === "number" && (
+          <div className="flex items-center gap-1">
+            <FiUsers size={14} className="text-gray-500" />
+            <span>Pop: {village.population.toLocaleString()}</span>
+          </div>
+        )}
+        {village.lastVisit && (
+          <div className="flex items-center gap-1">
+            <FiClock size={14} className="text-gray-500" />
+            <span>Last Visit: {village.lastVisit}</span>
+          </div>
+        )}
+        {village.nextVisitTarget && (
+          <div className="flex items-center gap-1">
+            <FiCalendar size={14} className="text-gray-500" />
+            <span>Next Visit: {village.nextVisitTarget}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Notes (if available) */}
+      {village.notes && (
+        <div className="mb-3 text-sm text-gray-700 border-t border-gray-200 pt-2">
+          <p className="font-semibold text-gray-800 flex items-center gap-1"><FiBookOpen size={14} /> Notes:</p>
+          <p className="text-gray-600 mt-1">{village.notes}</p>
+        </div>
+      )}
+
+      {/* Parents Section */}
+      <div className="border-t border-gray-200 pt-2">
+        <h4 className="font-semibold text-gray-800 text-sm mb-1 flex items-center gap-1">
+          <FiUsers size={14} /> Parent Contacts:
+        </h4>
+        {village.parents?.length > 0 ? (
+          <ul className="space-y-1 text-sm text-gray-700">
+            {village.parents.map((parent, idx) => (
+              <li key={idx} className="flex flex-wrap items-center gap-x-2">
+                <span className="font-medium">{parent.name}</span>
+                {parent.contact && <span className="text-gray-500">({parent.contact})</span>}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-500 text-sm">No parent data available</p>
+        )}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="mt-4 flex justify-end gap-2 border-t pt-3 border-gray-200">
+        <button
+          className="flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition-colors shadow-sm"
+          onClick={onEdit}
+        >
+          <FiEdit2 size={14} /> Edit Pin
+        </button>
+        <button
+          className="flex items-center gap-1 px-3 py-1 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 transition-colors shadow-sm"
+          onClick={onDelete}
+        >
+          <FiTrash2 size={14} /> Delete Pin
+        </button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Add Village Component
 const AddVillageOnMap: React.FC<{
@@ -325,16 +394,16 @@ export default function Map({
           },
           (err: any) => { // Handle errors during snapshot listener
             console.error("Map.tsx Firestore Error:", err);
-            setError("Failed to fetch pins: " + err.message);
+            setError("Failed to fetch pins");
             setIsLoading(false);
-            toast.error("Error loading pins: " + err.message);
+            toast.error("Error loading pins");
           }
         );
       } catch (err: any) { // Handle errors during collection reference creation
         console.error("Map.tsx Setup Error:", err);
-        setError("Failed to initialize pin data sync: " + err.message);
+        setError("Failed to initialize pin data sync");
         setIsLoading(false);
-        toast.error("Error initializing pin data sync: " + err.message);
+        toast.error("Error initializing pin data sync");
       }
     } else {
       // If no user or project selected, clear pins and set loading to false
@@ -389,7 +458,7 @@ export default function Map({
       onLocationFoundForModal(null); // Clear any search modal messages
     } catch (err: any) {
       console.error("Failed to save pin:", err);
-      toast.error("Failed to save pin: " + err.message);
+      
     }
   };
 
@@ -407,7 +476,7 @@ export default function Map({
       toast.success("Pin deleted successfully!"); // Confirmation toast
     } catch (err: any) {
       console.error("Failed to delete pin:", err);
-      toast.error("Failed to delete pin: " + err.message);
+      toast.error("Failed to delete pin");
     }
   };
 
@@ -480,7 +549,7 @@ export default function Map({
 
   // --- Main Map Render ---
   return (
-    <div className="relative h-screen w-full"> {/* Container for map and floating buttons */}
+    <div className="relative h-screen w-full pt-[60px] md:pt-[100px]"> {/* Container for map and floating buttons */}
       {/* ADD NEW PINS Button (for adding pins by map click) */}
       <button
         className="fixed bottom-24 md:bottom-6 right-3 z-[1000] flex items-center bg-green-600 text-white rounded-full shadow-lg px-4 py-4 transition-all duration-300 group hover:pr-8 hover:rounded-full "

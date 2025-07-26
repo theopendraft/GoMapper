@@ -69,7 +69,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({
           ${isSidebarOpen ? 'md:ml-0' : 'md:ml-0'} /* Sidebar is fixed/absolute on mobile, static on desktop */
           `}>
         {/* Top Navigation Bar */}
-        <nav className="bg-white p-4 flex justify-between items-center z-[1030] shadow-sm fixed top-0 left-0 right-0 border-b border-gray-200">
+        <nav className="bg-white md:p-4 pb-2 pt-3 flex justify-between items-center z-[1030] shadow-sm fixed top-0 left-0 right-0 border-b border-gray-200">
           <div className="flex items-center">
             {/* Sidebar Toggle Button - visible on mobile, hidden on larger screens */}
             {currentUser && (location.pathname === "/map" || location.pathname === "/dashboard" || location.pathname === "/contacts") && (
@@ -81,7 +81,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({
                 <FiMenu size={24} />
               </button>
             )}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 ml-2">
             <svg className="h-8 w-8 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5A4.5 4.5 0 003 9.5a4.5 4.5 0 004.5 4.5c1.746 0 3.332-.477 4.5-1.247m0 0V14.25m0-6.253c1.168-.773 2.754-1.247 4.5-1.247A4.5 4.5 0 0121 9.5a4.5 4.5 0 01-4.5 4.5c-1.746 0-3.332-.477-4.5-1.247m0 0V14.25m0 0v1.5c0 .874-.396 1.705-1.036 2.272l-2.07 1.849c-.832.74-2.031.74-2.863 0l-2.07-1.849A3.75 3.75 0 017.5 14.25m4.5 4.5v-1.5m0-6.253a4.524 4.524 0 01-.166-.089m0 0L12 14.25" />
           </svg>
@@ -156,7 +156,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({
                     : "text-gray-600"
                 )}
               >
-                <Icon className="w-6 h-6" />
+                <Icon className="w-4 h-4" />
                 {name}
               </Link>
             ))}
