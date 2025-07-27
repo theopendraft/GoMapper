@@ -125,7 +125,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="px-6 py-8 bg-gray-100 min-h-[calc(100vh-theme(spacing.16))] md:min-h-[calc(100vh-theme(spacing.20))] space-y-6 pb-8">
+    <div className="px-6 py-8 bg-gray-100 min-h-[calc(100vh-theme(spacing.16))] md:min-h-[calc(100vh-theme(spacing.20))] space-y-6 pb-20">
       <h1 className="text-3xl md:text-4xl font-extrabold text-gray-700 mb-8">
         Dashboard:{" "}
         {userProjects.find((p) => p.id === currentProjectId)?.name ||

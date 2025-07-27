@@ -1,7 +1,9 @@
+// badge.tsx
 import * as React from "react";
 
 type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
-  variant?: "default" | "success" | "warning" | "danger";
+  // Add 'destructive' to the union type
+  variant?: "default" | "success" | "warning" | "danger" | "destructive";
 };
 
 export const Badge = ({ className = "", variant = "default", ...props }: BadgeProps) => {
@@ -10,6 +12,7 @@ export const Badge = ({ className = "", variant = "default", ...props }: BadgePr
     success: "bg-green-100 text-green-800",
     warning: "bg-yellow-100 text-yellow-800",
     danger: "bg-red-100 text-red-800",
+    destructive: "bg-red-500 text-white", // Example color for destructive, make it distinct from danger
   }[variant];
 
   return (

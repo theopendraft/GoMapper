@@ -431,7 +431,7 @@ export default function ProjectSidebar({
         className={`
           fixed inset-y-0 left-0 bg-white text-gray-800
           w-64 transform transition-all duration-300 ease-in-out
-          p-4 pb-20 md:pb-2 // Padding, adjusted for mobile footer and desktop
+          p-4 pb-24 md:pb-2 // Padding, adjusted for mobile footer and desktop
           flex flex-col z-[1020] shadow-2xl rounded-r-lg 
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
 
@@ -441,8 +441,8 @@ export default function ProjectSidebar({
         `}
       >
         {/* Sidebar Header (for mobile toggle) */}
-        <div className="flex justify-between items-center mb-6 mt-14 md:hidden">
-          <h2 className="text-xl font-bold">Your Projects</h2>
+        <div className="flex justify-between items-center mb-6 mt-14 md:hidden ">
+          <h2 className="text-2xl font-bold">Your Projects</h2>
           <button
             onClick={() => setIsOpen(false)}
             className="text-gray-500 hover:text-gray-800 transition-colors p-2 rounded-full hover:bg-gray-200"
@@ -454,7 +454,7 @@ export default function ProjectSidebar({
 
         {/* Desktop Header (always visible) */}
         <div className="hidden md:flex justify-between items-center mb-8 mt-20">
-          <h2 className="text-3xl font-extrabold text-gray-700">
+          <h2 className="text-2xl font-bold text-gray-500">
             Your Projects
           </h2>
         </div>

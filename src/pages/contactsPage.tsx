@@ -140,7 +140,7 @@ export default function ContactsPage() {
   }
 
   return (
-    <div className="px-6 py-8 bg-gray-100 min-h-[calc(100vh-theme(spacing.16))] md:min-h-[calc(100vh-theme(spacing.20))] space-y-6  pb-6">
+    <div className="px-6 py-8 bg-gray-100 min-h-[calc(100vh-theme(spacing.16))] md:min-h-[calc(100vh-theme(spacing.20))] space-y-6  pb-20">
       <h1 className="text-3xl md:text-4xl font-extrabold text-gray-700 mb-8">
         Contacts: {userProjects.find(p => p.id === currentProjectId)?.name || "Current Project"}
       </h1>
@@ -171,12 +171,13 @@ export default function ContactsPage() {
           )}
         </div>
       </div>
-
+<div className="bg-white p-6 rounded-xl shadow-lg">
       <StatsCards
         villages={villages}
         currentFilter={filter}
         setFilter={setFilter}
       />
+</div>
 
       {/* 📋 Results */}
       <div className="space-y-4 mt-4">
