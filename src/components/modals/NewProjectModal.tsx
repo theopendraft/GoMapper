@@ -144,14 +144,14 @@ export default function NewProjectModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400" // Adjusted padding, font-weight, shadow
+              className="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 md:text-base text-sm" // Adjusted padding, font-weight, shadow
               disabled={isCreating}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className={`px-6 py-2.5 rounded-lg text-white font-semibold flex items-center gap-2 transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`px-6 py-2.5 rounded-lg text-white font-semibold flex items-center gap-2 transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 md:text-base text-sm ${
                 // Adjusted padding, font-weight, shadow, focus styles
                 isCreating
                   ? "bg-blue-300 cursor-not-allowed"
