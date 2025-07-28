@@ -13,6 +13,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FiCheckCircle, FiSearch, FiX } from "react-icons/fi"; // Added FiSearch and FiX for search input
 import { Input } from "../components/ui/input"; // Assuming you have a reusable Input component
+import start from './start.json'; // Adjust path if necessary
+import Lottie from "lottie-react";
 
 export default function DashboardPage() {
   const [villages, setVillages] = useState<Village[]>([]);
@@ -117,9 +119,24 @@ export default function DashboardPage() {
 
   if (!currentProjectId) {
     return (
-      <div className="flex flex-col justify-center items-center flex-grow h-full bg-gray-100 p-4 text-center pt-24 md:pt-28 pb-6">
-        <p className="text-xl font-semibold text-gray-700 mb-4">No Project Selected</p>
-        <p className="text-gray-600">Please select or create a project using the sidebar to view its dashboard.</p>
+      <div className="flex flex-col justify-center items-center h-full w-full text-gray-700 text-center p-4 bg-gray-100">
+        {/* You can replace this SVG with a GIF or a more elaborate illustration */}
+        <Lottie animationData={start}
+        className="w-48 h-48" />
+
+        <p className="text-2xl font-semibold mb-2">Welcome to your Map!</p>
+
+        <p className="text-lg max-w-md ">
+          Please use the{" "}
+          <span className="font-medium text-blue-600">
+            sidebar (top-left menu icon)
+          </span>{" "}
+          to{" "}
+          <span className="font-medium text-blue-600">
+            create a new project
+          </span>{" "}
+          to view it's dashboard.
+        </p>
       </div>
     );
   }

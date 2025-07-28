@@ -186,9 +186,11 @@ export const MapSearchProvider: React.FC<{ children: ReactNode }> = ({ children 
         <div className="relative flex items-center justify-center mb-6">
           <div className="absolute animate-spin rounded-full h-24 w-24 border-t-4 border-b-4 border-blue-200 opacity-75"></div>
           <div className="absolute animate-spin-slow rounded-full h-20 w-20 border-t-4 border-b-4 border-indigo-200 opacity-75 [animation-delay:-0.5s]"></div>
-          <svg className="h-16 w-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5A4.5 4.5 0 003 9.5a4.5 4.5 0 004.5 4.5c1.746 0 3.332-.477 4.5-1.247m0 0V14.25m0-6.253c1.168-.773 2.754-1.247 4.5-1.247A4.5 4.5 0 0121 9.5a4.5 4.5 0 01-4.5 4.5c-1.746 0-3.332-.477-4.5-1.247m0 0V14.25m0 0v1.5c0 .874-.396 1.705-1.036 2.272l-2.07 1.849c-.832.74-2.031.74-2.863 0l-2.07-1.849A3.75 3.75 0 017.5 14.25m4.5 4.5v-1.5m0-6.253a4.524 4.524 0 01-.166-.089m0 0L12 14.25" />
-          </svg>
+              <img
+                src="/GoMapperW.svg"
+                alt="GoMapper Logo"
+                className="w-10 h-10"
+              />
         </div>
         <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-wide">
           GoMapper

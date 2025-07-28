@@ -102,7 +102,11 @@ export default function LoginPage() {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="w-1/2 bg-gradient-to-br from-blue-700 to-indigo-900 flex flex-col items-center justify-center p-8 text-white text-center"
         >
-          <GrMapLocation className="w-48 h-48 text-blue-200 mb-6 drop-shadow-lg" />
+                        <img
+                src="/GoMapperW.svg"
+                alt="GoMapper Logo"
+                className="w-48 h-48 text-blue-200 mb-6 drop-shadow-lg "
+              />
           <h2 className="text-4xl font-extrabold mb-2">GoMapper</h2>
           <p className="text-lg font-light opacity-90">
             Your world, organized and secured.

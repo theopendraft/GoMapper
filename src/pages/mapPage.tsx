@@ -6,6 +6,12 @@ import MapSummaryPanel from "../Map/components/MapSummaryPanel"; // Adjust path 
 import { useMapSearch } from "../context/MapSearchContext";
 // Import Navigate for conditional rendering
 import { Navigate } from "react-router-dom";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import start from './start.json'; // Adjust path if necessary
+import Lottie from "lottie-react";
+
+
+
 
 
 export default function MapPage() {
@@ -55,28 +61,21 @@ export default function MapPage() {
     return (
       <div className="flex flex-col justify-center items-center h-full w-full text-gray-700 text-center p-4 bg-gray-100">
         {/* You can replace this SVG with a GIF or a more elaborate illustration */}
-        <svg
-          className="w-24 h-24 text-gray-400 mb-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="1.5"
-            d="M9.663 17h4.673M12 3v18m-3-6h6m6 0a9 9 0 11-18 0 9 9 0 0118 0z"
-          ></path>
-        </svg>
-        <p className="text-2xl font-semibold mb-3">Welcome to your Map!</p>
-        <p className="text-lg max-w-md">
-          It looks like you haven't selected a project yet.
-        </p>
-        <p className="text-lg max-w-md mt-2">
-          Please use the <span className="font-medium text-blue-600">sidebar (top-left menu icon)</span> to{" "}
-          <span className="font-medium text-blue-600">create a new project</span> or{" "}
-          <span className="font-medium text-blue-600">select an existing one</span> to start mapping.
+        <Lottie animationData={start}
+        className="w-48 h-48" />
+
+        <p className="text-2xl font-semibold mb-2">Welcome to your Map!</p>
+
+        <p className="text-lg max-w-md ">
+          Please use the{" "}
+          <span className="font-medium text-blue-600">
+            sidebar (top-left menu icon)
+          </span>{" "}
+          to{" "}
+          <span className="font-medium text-blue-600">
+            create a new project
+          </span>{" "}
+          to start mapping.
         </p>
       </div>
     );

@@ -260,16 +260,18 @@ const GeoSearchControlManager: React.FC<{
         const provider = new OpenStreetMapProvider();
         const searchControl = new (GeoSearchControl as any)({
           provider: provider,
-          style: 'bar', // Visual style of the search input
-          position: 'topright', // Position on the map
+          style: "bar", // Visual style of the search input
+          position: "topright", // Position on the map
           showMarker: false, // We'll manage our own temporary marker
           showPopup: false,
           autoClose: false, // Keep the search bar active after a result
           retainZoomLevel: false,
           animateZoom: true,
           keepResult: false,
-          searchLabel: 'Search location (e.g., city, address)',
-          notFoundMessage: 'Location not found.',
+          searchLabel: "Search location (e.g., city, address)",
+          notFoundMessage: "Location not found.",
+
+          
         });
         map.addControl(searchControl); // Add the control to the Leaflet map
         searchControlRef.current = searchControl;
@@ -764,7 +766,7 @@ export default function Map({
         autoClose={2000}
         icon={<FiCheckCircle className="text-green-500 w-6 h-6" />}
         toastClassName={() =>
-          "flex items-center gap-2 rounded-lg bg-white/90 shadow-lg border border-green-200 px-4 py-2 min-h-0 text-sm sm:text-base text-gray-800 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
+          "flex items-center gap-2 rounded-lg bg-white/90 shadow-lg border border-green-200 px-4 py-2 min-h-0 text-sm sm:text-base text-gray-800 "
         }
         style={{ top: "4em", left: "2em", minWidth: 0, width: "auto", maxWidth: "90vw" }}
       />
