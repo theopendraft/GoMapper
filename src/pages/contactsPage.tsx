@@ -12,7 +12,7 @@ import { toast } from 'react-toastify';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FiCheckCircle, FiSearch, FiX } from "react-icons/fi"; // Added FiSearch and FiX
-import start from './start.json'; // Adjust path if necessary
+import start from '../../public/start.json'; // Adjust path if necessary
 import Lottie from "lottie-react";
 
 export default function ContactsPage() {

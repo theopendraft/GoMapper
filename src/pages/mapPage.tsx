@@ -7,10 +7,8 @@ import { useMapSearch } from "../context/MapSearchContext";
 // Import Navigate for conditional rendering
 import { Navigate } from "react-router-dom";
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import start from './start.json'; // Adjust path if necessary
+import start from '../../public/start.json'; // Adjust path if necessary
 import Lottie from "lottie-react";
-
-
 
 
 

@@ -2,7 +2,7 @@
 // src/components/Layout.tsx
 import React, { useState, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import SearchModal from "./modals/SearchModal";
+// import SearchModal from "./modals/SearchModal";
 import ProjectSidebar from './ProjectSidebar';
 import { FiSearch, FiMenu } from "react-icons/fi";
 import { AiOutlineDashboard } from "react-icons/ai";
@@ -71,12 +71,12 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({
 
       {/* Main Content Wrapper (Navbar + Main Content Area + Mobile Nav) */}
       <div className={`
-          flex flex-col flex-1 min-h-full overflow-y-auto // Allows content to scroll
+          flex flex-col flex-1 min-h-full overflow-y-auto scrollbar-hide // Allows content to scroll
           transition-all duration-300 ease-in-out
           ${isSidebarOpen ? 'md:ml-64' : 'md:ml-0'} // Adjust main content margin based on sidebar's static state
           `}>
         {/* Top Navigation Bar */}
-        <nav className="fixed top-0 left-0 right-0 bg-white h-16 md:h-20 flex justify-between items-center px-4 md:px-8 z-[1030] shadow-lg border-b border-gray-200">
+        <nav className="fixed top-0 left-0 right-0 bg-white h-16 md:h-20 flex justify-between items-center px-4 md:px-8 z-[1030] shadow-sm border-b border-gray-200">
           <div className="flex items-center">
             {/* Sidebar Toggle Button - visible only on smaller screens */}
             {currentUser && (location.pathname === "/map" || location.pathname === "/dashboard" || location.pathname === "/contacts") && (
@@ -92,7 +92,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({
               <img
                 src="/GoMapper.svg"
                 alt="GoMapper Logo"
-                className="w-7 h-7"
+                className="w-7 h-7 md:w-9 md:h-9"
               />
               <Link to="/" className="text-2xl md:text-3xl font-extrabold text-blue-700">
                 GoMapper
@@ -121,7 +121,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({
                       key={name}
                       to={path}
                       className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200", // Added gap-2 and rounded-lg
+                        "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200", 
                         location.pathname === path
                           ? "bg-blue-600 text-white font-semibold shadow-sm" // Stronger active state
                           : "text-gray-700 hover:bg-gray-100 hover:text-blue-700" // Enhanced hover for inactive
@@ -175,13 +175,13 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({
       </div> {/* End of Main Content Wrapper */}
 
       {/* Render the SearchModal */}
-      <SearchModal
+      {/* <SearchModal
         isOpen={isSearchModalOpen}
         onClose={() => setIsSearchModalOpen(false)}
         onStartSearch={triggerMapSearchControlVisibility.bind(null, true)}
         locationFoundForSelection={locationFoundForModalDisplay}
         onClearLocationFound={handleClearLocationFound}
-      />
+      /> */}
     </div>
   );
 };

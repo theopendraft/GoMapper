@@ -133,7 +133,7 @@ export default function ProjectSidebar({
           fixed inset-y-0 left-0 bg-white text-gray-800
           w-64 transform transition-all duration-300 ease-in-out
           p-4 pb-24 md:pb-2 // Padding, adjusted for mobile footer and desktop
-          flex flex-col z-[1020] shadow-2xl rounded-r-lg 
+          flex flex-col z-[1020] shadow-sm rounded-r-lg 
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
 
           md:translate-x-0 md:static md:w-64 md:flex // On medium screens and up, be static and always visible
@@ -204,7 +204,7 @@ export default function ProjectSidebar({
               <li key={project.id}>
                 {editingProjectId === project.id ? (
                   // Inline Edit Mode
-                  <div className="flex items-center space-x-2 bg-gray-100 p-2 rounded-md shadow-sm">
+                  <div className="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-md shadow-sm">
                     <Input
                       type="text"
                       value={newProjectName}
@@ -217,7 +217,7 @@ export default function ProjectSidebar({
                     />
                     <button
                       onClick={() => handleRenameProject(project.id)}
-                      className="p-2 rounded-full text-green-500 hover:bg-green-100 hover:text-green-600 transition-colors duration-200"
+                      className="p-1 rounded-full text-green-500 hover:bg-green-100 hover:text-green-600 transition-colors duration-200"
                       aria-label="Save rename"
                       title="Save Rename"
                     >
@@ -225,7 +225,7 @@ export default function ProjectSidebar({
                     </button>
                     <button
                       onClick={() => setEditingProjectId(null)}
-                      className="p-2 rounded-full text-red-500 hover:bg-red-100 hover:text-red-600 transition-colors duration-200"
+                      className="p-1 rounded-full text-red-500 hover:bg-red-100 hover:text-red-600 transition-colors duration-200"
                       aria-label="Cancel rename"
                       title="Cancel Rename"
                     >
@@ -236,7 +236,7 @@ export default function ProjectSidebar({
                   // Display Mode
                   <div
                     className={`
-                        group relative flex items-center justify-between p-3 rounded-md cursor-pointer
+                        group relative flex items-center justify-between px-3 py-2 rounded-md cursor-pointer
                         transition-all duration-200 ease-in-out
                         ${
                           project.id === currentProjectId
@@ -247,7 +247,7 @@ export default function ProjectSidebar({
                   >
                     <button
                       onClick={() => handleSelectProject(project.id)}
-                      className="flex-grow text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md"
+                      className="flex-grow text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2  rounded-md"
                       aria-pressed={project.id === currentProjectId}
                     >
                       <span className="truncate block font-medium">
@@ -271,7 +271,7 @@ export default function ProjectSidebar({
                           setNewProjectName(project.name);
                         }}
                         className={`
-                          p-2 rounded-full transition-colors duration-200
+                          p-1 rounded-full transition-colors duration-200
                           ${
                             project.id === currentProjectId
                               ? "text-blue-200 hover:bg-blue-500"
@@ -288,7 +288,7 @@ export default function ProjectSidebar({
                           handleDeleteProject(project.id, project.name)
                         }
                         className={`
-                          p-2 rounded-full transition-colors duration-200
+                          p-1 rounded-full transition-colors duration-200
                           ${
                             project.id === currentProjectId
                               ? "text-red-200 hover:bg-red-500"
@@ -316,7 +316,7 @@ export default function ProjectSidebar({
           {/* {userProjects.length > 0 && ( */}
           <Button
             onClick={() => setIsNewProjectModalOpen(true)}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg flex items-center justify-center mb-2 shadow-md transition-all duration-200"
+            className="w-full mb-2 py-3 bg-blue-600 hover:bg-blue-700 text-white  rounded-lg flex items-center justify-center  shadow-md transition-all duration-200"
           >
             <FiPlus className="mr-2" size={20} /> New Project
           </Button>

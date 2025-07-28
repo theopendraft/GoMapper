@@ -11,7 +11,7 @@ import { GrMapLocation } from "react-icons/gr"; // Import an icon for the left g
 import { toast } from "react-toastify";
 import ForgotPasswordModal from "../components/modals/ForgotPasswordModal";
 import { motion } from "framer-motion";
-import Login from './Login.json'; // Adjust path if necessary
+import Login from '../../public/Login.json'; // Adjust path if necessary
 import Lottie from "lottie-react";
 
 export default function LoginPage() {

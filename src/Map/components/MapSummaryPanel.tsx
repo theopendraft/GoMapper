@@ -381,7 +381,7 @@ export default function MapSummaryPanel({
       className={`
         bg-white border shadow-xl flex flex-col
         transition-all duration-300 ease-in-out 
-        fixed bottom-24 md:bottom-6 right-3 z-[1010] 
+        fixed bottom-24 md:bottom-6 right-3 z-[1010] hover:scale-105
         ${
           panelOpen
             ? "p-5 h-[63vh] md:h-[80vh] w-80 md:w-[360px] rounded-xl" // Expanded state
@@ -411,7 +411,7 @@ export default function MapSummaryPanel({
           ${
             panelOpen
               ? "top-4 right-4 p-2 bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800" // Expanded style
-              : "inset-0 m-auto w-14 h-14 bg-blue-600 text-white hover:scale-105 hover:shadow-2xl hover:bg-blue-700 active:scale-100 active:shadow-xl" // Collapsed FAB style
+              : "inset-0 m-auto w-14 h-14 bg-blue-600 text-white hover:scale-105 hover:shadow-2xl hover:bg-blue-700 active:scale-100 active:shadow-xl " // Collapsed FAB style
           }
           flex items-center justify-center
         `}
