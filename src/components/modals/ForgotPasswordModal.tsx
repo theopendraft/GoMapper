@@ -2,9 +2,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { FiX, FiMail, FiSend } from "react-icons/fi"; // Added FiMail and FiSend icons
-import { toast } from "react-toastify";
-import { useAuth } from "../../context/AuthContext";
-import { AuthContextProps } from "../../context/AuthContext";
+import { useSnackbar } from "../../context/SnackbarContext";
+import { useAuth, AuthContextProps } from "../../context/AuthContext";
 
 interface ForgotPasswordModalProps {
   isOpen: boolean;
@@ -16,6 +15,7 @@ export default function ForgotPasswordModal({
   onClose,
 }: ForgotPasswordModalProps) {
   const { resetPassword } = useAuth() as AuthContextProps; // Renamed to avoid confusion with internal resetPassword
+  const { showSnackbar } = useSnackbar();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(""); // For success/error messages displayed in the modal
@@ -41,8 +41,12 @@ export default function ForgotPasswordModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) { // Use .trim() for validation
-      toast.error("Please enter your email address.");
+    if (!email.trim()) {
+      // Use .trim() for validation
+      showSnackbar({
+        message: "Please enter your email address.",
+        severity: "error",
+      });
       setMessage("Please enter your email address."); // Also set modal message
       return;
     }
@@ -50,10 +54,15 @@ export default function ForgotPasswordModal({
     setLoading(true);
     try {
       await resetPassword(email);
-      setMessage("A password reset link has been sent to your email. Please check your inbox (and spam folder).");
-      toast.success("Password reset email sent!");
+      setMessage(
+        "A password reset link has been sent to your email. Please check your inbox (and spam folder)."
+      );
+      showSnackbar({
+        message: "Password reset email sent!",
+        severity: "success",
+      });
       // Optionally, close modal after a short delay for user to read message
-      // setTimeout(() => onClose(), 3000); 
+      // setTimeout(() => onClose(), 3000);
     } catch (error: any) {
       console.error("Password reset error:", error);
       let errorMessage = "Failed to send password reset email.";
@@ -63,7 +72,7 @@ export default function ForgotPasswordModal({
         errorMessage = "Please enter a valid email address.";
       }
       setMessage(errorMessage); // Set modal message for error
-      toast.error(errorMessage); // Show toast for error
+      showSnackbar({ message: errorMessage, severity: "error" }); // Show toast for error
     } finally {
       setLoading(false);
     }
@@ -84,7 +93,9 @@ export default function ForgotPasswordModal({
         className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-8 mx-auto my-8 max-h-[95vh] overflow-auto border border-gray-200" // Increased padding, added border
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center pb-4 mb-6 border-b border-gray-200"> {/* Increased padding and margin */}
+        <div className="flex justify-between items-center pb-4 mb-6 border-b border-gray-200">
+          {" "}
+          {/* Increased padding and margin */}
           <h2
             id="forgot-password-title"
             className="text-2xl md:text-3xl font-bold text-gray-900" // Bolder, larger title
@@ -101,8 +112,12 @@ export default function ForgotPasswordModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6"> {/* Increased spacing */}
-          <p className="text-gray-700 text-sm mb-6"> {/* Adjusted text color and margin */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {" "}
+          {/* Increased spacing */}
+          <p className="text-gray-700 text-sm mb-6">
+            {" "}
+            {/* Adjusted text color and margin */}
             Enter your email address and we'll send you a link to reset your
             password.
           </p>
@@ -113,21 +128,25 @@ export default function ForgotPasswordModal({
             >
               Email Address
             </label>
-            <div className="relative"> {/* Wrapper for icon inside input */}
-                <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="block w-full px-4 py-2.5 border rounded-lg shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-gray-800 pl-10" // Applied consistent input styling, added pl-10 for icon
-                    placeholder="your.email@example.com"
-                    required
-                    disabled={loading || !!message}
-                />
+            <div className="relative">
+              {" "}
+              {/* Wrapper for icon inside input */}
+              <FiMail
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                size={20}
+              />
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="block w-full px-4 py-2.5 border rounded-lg shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-gray-800 pl-10" // Applied consistent input styling, added pl-10 for icon
+                placeholder="your.email@example.com"
+                required
+                disabled={loading || !!message}
+              />
             </div>
           </div>
-
           {message && (
             <p
               className={`text-sm ${
@@ -137,11 +156,11 @@ export default function ForgotPasswordModal({
               {message}
             </p>
           )}
-
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3.5 px-4 rounded-lg text-white font-semibold text-lg shadow-md transition-colors flex items-center justify-center gap-2 ${ // Increased padding, font size, shadow
+            className={`w-full py-3.5 px-4 rounded-lg text-white font-semibold text-lg shadow-md transition-colors flex items-center justify-center gap-2 ${
+              // Increased padding, font size, shadow
               loading
                 ? "bg-blue-300 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500" // Added focus styles

@@ -1,7 +1,7 @@
 // src/components/modals/NewProjectModal.tsx
 import React, { useState } from "react";
 import ReactDOM from "react-dom"; // For React Portals
-import { toast } from "react-toastify"; // For notifications
+import { useSnackbar } from "../../context/SnackbarContext"; // For notifications
 import { FiPlus, FiX, FiChevronDown } from "react-icons/fi"; // Icons
 import { useMapSearch } from "../../context/MapSearchContext"; // Import useMapSearch
 
@@ -16,6 +16,7 @@ export default function NewProjectModal({
   onClose,
 }: NewProjectModalProps) {
   const { createProject, loadingProjects } = useMapSearch(); // Get createProject and loadingProjects from useMapSearch
+  const { showSnackbar } = useSnackbar();
 
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
@@ -42,7 +43,10 @@ export default function NewProjectModal({
       // If you want to save description and type, createProject in MapSearchContext needs to be updated:
       // await createProject(projectName.trim(), description.trim(), type);
 
-      toast.success(`Project "${projectName.trim()}" created successfully!`);
+      showSnackbar({
+        message: `Project "${projectName.trim()}" created successfully!`,
+        severity: "success",
+      });
       // Clear form fields
       setProjectName("");
       setDescription("");
@@ -50,8 +54,9 @@ export default function NewProjectModal({
       onClose(); // Close the modal
     } catch (err: any) {
       console.error("Error creating project:", err);
-      setError("Failed to create project.");
-      toast.error("Failed to create project.");
+      const errorMessage = "Failed to create project.";
+      setError(errorMessage);
+      showSnackbar({ message: errorMessage, severity: "error" });
     } finally {
       setIsCreating(false); // End local loading
     }

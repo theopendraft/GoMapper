@@ -8,15 +8,16 @@ import { FiEye, FiEyeOff, FiMail, FiLock, FiLogIn } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { GrMapLocation } from "react-icons/gr"; // Import an icon for the left graphic side
 
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import ForgotPasswordModal from "../components/modals/ForgotPasswordModal";
-import { motion } from "framer-motion";
-import Login from '../../public/Login.json'; // Adjust path if necessary
+import { AnimatePresence, motion } from "framer-motion";
+import Login from "../../public/Login.json"; // Adjust path if necessary
 import Lottie from "lottie-react";
 
 export default function LoginPage() {
   const { login, signInWithGoogle } = useAuth() as AuthContextProps;
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -60,13 +61,13 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      toast.success("Login successful!");
+      showSnackbar({ message: "Login successful!", severity: "success" });
       navigate("/map");
     } catch (error: any) {
       console.error("Login (Email/Password) error:", error);
       const msg = getAuthErrorMessage(error);
       setErrorMessage(msg);
-      toast.error(msg);
+      showSnackbar({ message: msg, severity: "error" });
     } finally {
       setLoading(false);
     }
@@ -78,13 +79,16 @@ export default function LoginPage() {
     setErrorMessage("");
     try {
       await signInWithGoogle();
-      toast.success("Login successful with Google!");
+      showSnackbar({
+        message: "Login successful with Google!",
+        severity: "success",
+      });
       navigate("/map");
     } catch (error: any) {
       console.error("Login (Google) error:", error);
       const msg = getAuthErrorMessage(error);
       setErrorMessage(msg);
-      toast.error(msg);
+      showSnackbar({ message: msg, severity: "error" });
     } finally {
       setLoading(false);
     }
@@ -104,8 +108,7 @@ export default function LoginPage() {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="w-1/2 bg-gradient-to-br from-blue-700 to-indigo-900 flex flex-col items-center justify-center p-8 text-white text-center"
         >
-        <Lottie animationData={Login}
-        className="w-64 h-64 drop-shadow-lg " />
+          <Lottie animationData={Login} className="w-64 h-64 drop-shadow-lg " />
           <h2 className="text-4xl font-extrabold mb-2">GoMapper</h2>
           <p className="text-lg font-light opacity-90">
             Your world, organized and secured.
@@ -123,11 +126,18 @@ export default function LoginPage() {
             Welcome Back!
           </h2>
 
-          {errorMessage && (
-            <p className="text-red-600 text-sm mb-6 text-center">
-              {errorMessage}
-            </p> // Increased margin
-          )}
+          <AnimatePresence>
+            {errorMessage && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="text-red-600 text-sm mb-6 text-center"
+              >
+                {errorMessage}
+              </motion.p>
+            )}
+          </AnimatePresence>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {" "}
@@ -184,7 +194,9 @@ export default function LoginPage() {
               </button>
             </div>
             {/* Login Button */}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               type="submit"
               className={`w-full py-3.5 px-4 rounded-lg bg-blue-600 text-white font-semibold text-lg flex items-center justify-center gap-2 shadow-md hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500
                 ${loading ? "opacity-70 cursor-not-allowed" : ""}
@@ -217,7 +229,7 @@ export default function LoginPage() {
                   <FiLogIn size={20} /> Login
                 </>
               )}
-            </button>
+            </motion.button>
           </form>
 
           <div className="relative flex items-center justify-center my-8">
@@ -232,13 +244,15 @@ export default function LoginPage() {
 
           {/* Social Login Buttons */}
           <div className="space-y-4">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleGoogleSignIn}
               className="w-full py-3.5 px-4 rounded-lg border border-gray-300 bg-white text-gray-700 font-semibold text-lg flex items-center justify-center gap-2 shadow-sm hover:bg-gray-50 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500" // Applied consistent button styling
               disabled={loading}
             >
               <FcGoogle size={24} /> Login with Google
-            </button>
+            </motion.button>
           </div>
 
           {/* Link to Signup */}
@@ -267,11 +281,18 @@ export default function LoginPage() {
           Welcome Back!
         </h2>
 
-        {errorMessage && (
-          <p className="text-red-600 text-sm mb-4 text-center">
-            {errorMessage}
-          </p>
-        )}
+        <AnimatePresence>
+          {errorMessage && (
+            <motion.p
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="text-red-600 text-sm mb-4 text-center"
+            >
+              {errorMessage}
+            </motion.p>
+          )}
+        </AnimatePresence>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email Input */}
@@ -329,7 +350,9 @@ export default function LoginPage() {
           </div>
 
           {/* Login Button */}
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             type="submit"
             className={`w-full py-3 px-4 rounded-md bg-blue-600 text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition duration-300
               ${loading ? "opacity-70 cursor-not-allowed" : ""}
@@ -362,7 +385,7 @@ export default function LoginPage() {
                 <FiLogIn size={20} /> Login
               </>
             )}
-          </button>
+          </motion.button>
         </form>
 
         <div className="relative flex items-center justify-center my-6">
@@ -374,13 +397,15 @@ export default function LoginPage() {
 
         {/* Social Login Buttons */}
         <div className="space-y-4">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleGoogleSignIn}
             className="w-full py-3 px-4 rounded-md border border-gray-300 bg-white text-gray-700 font-semibold text-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition duration-300"
             disabled={loading}
           >
             <FcGoogle size={24} /> Login with Google
-          </button>
+          </motion.button>
         </div>
 
         {/* Link to Signup */}

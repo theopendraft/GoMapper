@@ -12,15 +12,16 @@ import {
   FiLock,
   FiUserPlus,
 } from "react-icons/fi";
-import { toast } from "react-toastify";
+import { useSnackbar } from "../context/SnackbarContext";
 import { FcGoogle } from "react-icons/fc";
 import { GrMapLocation } from "react-icons/gr"; // Icon for the left graphic side
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { FirebaseError } from "firebase/app"; // Import FirebaseError for type checking
 
 export default function SignupPage() {
   const { signup, signInWithGoogle } = useAuth() as AuthContextProps;
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -86,13 +87,16 @@ export default function SignupPage() {
         });
       }
 
-      toast.success("Account created successfully!");
+      showSnackbar({
+        message: "Account created successfully!",
+        severity: "success",
+      });
       navigate("/map"); // Redirect to map after successful signup
     } catch (error: any) {
       console.error("Signup error:", error);
       const msg = getAuthErrorMessage(error);
       setErrorMessage(msg);
-      toast.error(msg);
+      showSnackbar({ message: msg, severity: "error" });
     } finally {
       setLoading(false);
     }
@@ -103,13 +107,16 @@ export default function SignupPage() {
     setErrorMessage(""); // Clear previous errors
     try {
       await signInWithGoogle();
-      toast.success("Login successful with Google!");
+      showSnackbar({
+        message: "Login successful with Google!",
+        severity: "success",
+      });
       navigate("/map"); // Redirect to map after successful signup
     } catch (error: any) {
       console.error("Google sign-in error:", error);
       const msg = getAuthErrorMessage(error);
       setErrorMessage(msg);
-      toast.error(msg);
+      showSnackbar({ message: msg, severity: "error" });
     } finally {
       setLoading(false);
     }
@@ -147,11 +154,18 @@ export default function SignupPage() {
             Create Your Account
           </h2>
 
-          {errorMessage && (
-            <p className="text-red-600 text-sm mb-6 text-center">
-              {errorMessage}
-            </p>
-          )}
+          <AnimatePresence>
+            {errorMessage && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="text-red-600 text-sm mb-6 text-center"
+              >
+                {errorMessage}
+              </motion.p>
+            )}
+          </AnimatePresence>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username Input */}
@@ -249,7 +263,9 @@ export default function SignupPage() {
             </div>
 
             {/* Sign Up Button */}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               type="submit"
               className={`w-full py-3.5 px-4 rounded-lg bg-blue-600 text-white font-semibold text-lg flex items-center justify-center gap-2 shadow-md hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500
                 ${loading ? "opacity-70 cursor-not-allowed" : ""}
@@ -282,7 +298,7 @@ export default function SignupPage() {
                   <FiUserPlus size={20} /> Sign Up
                 </>
               )}
-            </button>
+            </motion.button>
           </form>
 
           <div className="relative flex items-center justify-center my-8">
@@ -294,13 +310,15 @@ export default function SignupPage() {
 
           {/* Social Login Buttons */}
           <div className="space-y-4">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleGoogleSignIn}
               className="w-full py-3.5 px-4 rounded-lg border border-gray-300 bg-white text-gray-700 font-semibold text-lg flex items-center justify-center gap-2 shadow-sm hover:bg-gray-50 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               disabled={loading}
             >
               <FcGoogle size={24} /> Sign Up with Google
-            </button>
+            </motion.button>
           </div>
 
           {/* Link to Login */}
@@ -327,11 +345,18 @@ export default function SignupPage() {
           Create Your Account
         </h2>
 
-        {errorMessage && (
-          <p className="text-red-600 text-sm mb-4 text-center">
-            {errorMessage}
-          </p>
-        )}
+        <AnimatePresence>
+          {errorMessage && (
+            <motion.p
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="text-red-600 text-sm mb-4 text-center"
+            >
+              {errorMessage}
+            </motion.p>
+          )}
+        </AnimatePresence>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Username Input */}
@@ -427,9 +452,13 @@ export default function SignupPage() {
           </div>
 
           {/* Sign Up Button */}
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             type="submit"
-            className="w-full py-3 px-4 rounded-md bg-blue-600 text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition duration-300"
+            className={`w-full py-3 px-4 rounded-md bg-blue-600 text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition duration-300
+              ${loading ? "opacity-70 cursor-not-allowed" : ""}
+            `}
             disabled={loading}
           >
             {loading ? (
@@ -458,11 +487,11 @@ export default function SignupPage() {
                 <FiUserPlus size={20} /> Sign Up
               </>
             )}
-          </button>
+          </motion.button>
         </form>
 
         <div className="relative flex items-center justify-center my-6">
-          <span className="absolute bg-white bg-opacity-90 px-3 text-sm text-gray-500">
+          <span className="absolute bg-white bg-opacity-95 px-3 text-sm text-gray-500">
             OR
           </span>
           <div className="w-full border-t border-gray-300"></div>
@@ -470,19 +499,24 @@ export default function SignupPage() {
 
         {/* Social Login Buttons */}
         <div className="space-y-4">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleGoogleSignIn}
             className="w-full py-3 px-4 rounded-md border border-gray-300 bg-white text-gray-700 font-semibold text-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition duration-300"
             disabled={loading}
           >
-            <FcGoogle size={24} /> Login with Google
-          </button>
+            <FcGoogle size={24} /> Sign Up with Google
+          </motion.button>
         </div>
 
         {/* Link to Login */}
         <p className="text-center text-gray-600 mt-6">
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 hover:underline">
+          <Link
+            to="/login"
+            className="text-blue-600 hover:underline font-medium"
+          >
             Login
           </Link>
         </p>

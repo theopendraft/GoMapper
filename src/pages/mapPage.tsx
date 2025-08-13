@@ -6,11 +6,9 @@ import MapSummaryPanel from "../Map/components/MapSummaryPanel"; // Adjust path 
 import { useMapSearch } from "../context/MapSearchContext";
 // Import Navigate for conditional rendering
 import { Navigate } from "react-router-dom";
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import start from '../../public/start.json'; // Adjust path if necessary
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import start from "../../public/start.json"; // Adjust path if necessary
 import Lottie from "lottie-react";
-
-
 
 export default function MapPage() {
   // Destructure all necessary states and setters from MapSearchContext
@@ -37,6 +35,7 @@ export default function MapPage() {
   // State to control the open/close state of the MapSummaryPanel itself
   // This allows programmatic control over the panel's visibility from MapPage.
   const [isPanelOpen, setIsPanelOpen] = useState(false); // Panel starts closed by default
+  const [showDirections, setShowDirections] = useState(false);
 
   // --- Conditional Rendering for initial loading and project selection ---
   // If no user is logged in, redirect to login page (ProtectedRoute should handle this first)
@@ -59,8 +58,7 @@ export default function MapPage() {
     return (
       <div className="flex flex-col justify-center items-center h-full w-full text-gray-700 text-center p-4 bg-gray-100">
         {/* You can replace this SVG with a GIF or a more elaborate illustration */}
-        <Lottie animationData={start}
-        className="w-48 h-48" />
+        <Lottie animationData={start} className="w-48 h-48" />
 
         <p className="text-2xl font-semibold mb-2">Welcome to your Map!</p>
 
@@ -94,21 +92,23 @@ export default function MapPage() {
         <Map
           // Props for filtering existing pins on the map (controlled by MapSummaryPanel's inputs)
           search={panelSearchQuery}
-          filter={panelFilterType}  
-
+          filter={panelFilterType}
           // Props for the location search feature (controlled via SearchModal/MapSearchContext)
           isSearchActive={isSearchModalOpen} // Activates the search bar when modal is open
           isMapSearchControlVisible={isMapSearchControlVisible} // For internal control flow if needed
           onSearchControlVisibilityChange={setIsMapSearchControlVisible} // Map reports search bar visibility
           onLocationFoundForModal={setLocationFoundForModalDisplay} // Map sends found location to modal
-          onLocationSelectedFromMapSearch={handleLocationSelectedFromMapSearchAndCloseModal} // Callback when a search result is selected
+          onLocationSelectedFromMapSearch={
+            handleLocationSelectedFromMapSearchAndCloseModal
+          } // Callback when a search result is selected
           onRequestModalClose={requestSearchModalClose} // Map requests modal closure on outside click
-
           // User and Project context for data access (crucial for fetching/saving/deleting pins)
           currentUser={currentUser}
           currentProjectId={currentProjectId}
           // NEW PROP: Function to open the SearchModal directly from Map's button
           openSearchModal={openSearchModal}
+          showDirections={showDirections}
+          setShowDirections={setShowDirections}
         />
       </div>
 
@@ -123,11 +123,9 @@ export default function MapPage() {
         setSearch={setPanelSearchQuery}
         filter={panelFilterType}
         setFilter={setPanelFilterType}
-
         // Pass control for its open/close state (from MapPage)
-        isOpen={isPanelOpen}
+        isOpen={isPanelOpen && !showDirections} // Hide summary panel when directions are shown
         setIsOpen={setIsPanelOpen}
-
         // Pass user and project context for its data fetching (required by MapSummaryPanel)
         currentUser={currentUser}
         currentProjectId={currentProjectId}

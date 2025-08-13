@@ -67,12 +67,12 @@ export default function ProfileDropdown({ onLogout }: ProfileDropdownProps) {
       <button
         ref={buttonRef} // Assign ref to the button
         onClick={toggleDropdown}
-        className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold hover:bg-blue-200 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 font-semibold hover:bg-blue-200 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         aria-label="User profile menu"
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
-        <span className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-600 text-white text-sm flex-shrink-0">
+        <span className="w-6 h-6 flex items-center justify-center rounded-full bg-blue-600 text-white text-sm flex-shrink-0">
           {userInitial}
         </span>
         <span className="hidden md:inline-block truncate max-w-[120px] lg:max-w-[150px] text-sm text-gray-800">

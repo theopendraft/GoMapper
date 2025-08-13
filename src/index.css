@@ -5,7 +5,7 @@
 @plugin "daisyui";
 
 @import "tw-animate-css";
-@import 'tailwind-scrollbar-hide/v4';
+@import "tailwind-scrollbar-hide/v4";
 
 /* Custom classes for form fields */
 @layer components {
@@ -177,5 +177,18 @@ body.overflow-hidden {
   }
 }
 
+body {
+  font-family: "Inter", sans-serif;
+}
 
+/* Custom styles for SVG map pins */
+.svg-pin svg {
+  /* Adds a drop shadow to make the pin stand out from the map */
+  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.4));
+  transition: transform 0.1s ease-in-out;
+}
 
+.svg-pin:hover svg {
+  /* Slightly enlarges the pin on hover for better interactivity */
+  transform: scale(1.1);
+}

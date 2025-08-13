@@ -39,6 +39,11 @@ export const getProjectPinsCollection = (userId: string, projectId: string) => {
     return collection(db, "users", userId, "projects", projectId, "pins");
 };
 
+// NEW: This will get the collection of saved routes for a specific project
+export const getProjectRoutesCollection = (userId: string, projectId: string) => {
+    return collection(db, "users", userId, "projects", projectId, "routes");
+};
+
 // Re-export Firestore functions for convenience
 export { collection, doc, setDoc, deleteDoc, onSnapshot, query, where }; // Also export query, where
 
@@ -71,6 +76,10 @@ export { app };
 
 // export const getProjectPinsCollection = (userId: string, projectId: string) => {
 //   return collection(db, "users", userId, "projects", projectId, "pins");
+// };
+
+// export const getProjectRoutesCollection = (userId: string, projectId: string) => {
+//   return collection(db, "users", userId, "projects", projectId, "routes");
 // };
 
 // // Re-export Firestore functions for convenience
