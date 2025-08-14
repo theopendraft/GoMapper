@@ -207,7 +207,7 @@ const PanelContent: React.FC<PanelContentProps> = ({
   }
 
   return (
-    <div className="flex flex-col flex-grow w-full opacity-100 transition-opacity duration-300 delay-150 p-4">
+    <div className="flex flex-col flex-grow w-full opacity-100 transition-opacity duration-300 delay-150 p-4 ">
       {/* Header */}
       <div className="flex items-center justify-between mt-4 mb-4">
         <h2 className="text-2xl font-bold text-gray-700 tracking-tight select-none">
@@ -312,8 +312,8 @@ const PanelContent: React.FC<PanelContentProps> = ({
         </Button>
       </div>
       {/* Filtered List Preview */}
-      <div className="flex flex-col flex-1 min-h-0">
-        <div className="text-xs text-gray-500 mb-2 select-none">
+      <div className="flex flex-col flex-1 min-h-0 pb-10">
+        <div className="text-xs text-gray-500 mb-6 select-none">
           Showing{" "}
           <span className="font-semibold">{filteredVillages.length}</span> of{" "}
           <span className="font-semibold">{villages.length}</span> Pins
@@ -509,7 +509,7 @@ export default function MapSummaryPanel({
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[1010]" />
           <Drawer.Content className="bg-white flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 z-[1010]">
-            <div className="p-4 bg-white rounded-t-[10px] flex-1">
+            <div className="p-4 pb-10 bg-white rounded-t-[10px] flex-1">
               <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-gray-300 mb-8" />
               <div className="max-w-md mx-auto">
                 <Drawer.Title className="sr-only">Map Summary</Drawer.Title>
