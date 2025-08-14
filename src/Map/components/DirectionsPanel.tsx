@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Drawer } from "vaul";
 import { FiX, FiClock, FiMap } from "react-icons/fi";
 
@@ -47,6 +47,19 @@ const DirectionsPanel: React.FC<DirectionsPanelProps> = ({
   onClose,
   isOpen,
 }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  if (!isOpen || !instructions.length || !summary) {
+    return null;
+  }
+
   const content = (
     <>
       {/* Header */}
@@ -105,28 +118,26 @@ const DirectionsPanel: React.FC<DirectionsPanelProps> = ({
     </>
   );
 
-  return (
-    <>
-      {/* Desktop: Floating Panel */}
-      <div className="hidden pb-6 md:flex absolute top-24 right-4 z-[1000] bg-white w-80 max-h-[calc(100vh-12rem)] rounded-lg shadow-xl border border-gray-200 flex-col">
-        {content}
-      </div>
+  if (isMobile) {
+    return (
+      <Drawer.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[1010]" />
+          <Drawer.Content className="bg-gray-100 flex flex-col rounded-t-[10px] h-[94%] mt-24 fixed bottom-0 left-0 right-0 z-[1020]">
+            <div className="p-4 bg-white rounded-t-[10px] flex-1 overflow-y-auto">
+              <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-gray-300 mb-4" />
+              <div className="max-w-md mx-auto">{content}</div>
+            </div>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
+    );
+  }
 
-      {/* Mobile: Swipeable Drawer */}
-      <div className="md:hidden">
-        <Drawer.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
-          <Drawer.Portal>
-            <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[1010]" />
-            <Drawer.Content className="bg-gray-100 flex flex-col rounded-t-[10px] h-[94%] mt-24 fixed bottom-0 left-0 right-0 z-[1020]">
-              <div className="p-4 bg-white rounded-t-[10px] flex-1 overflow-y-auto">
-                <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-gray-300 mb-4" />
-                <div className="max-w-md mx-auto">{content}</div>
-              </div>
-            </Drawer.Content>
-          </Drawer.Portal>
-        </Drawer.Root>
-      </div>
-    </>
+  return (
+    <div className="hidden md:flex absolute top-20 left-4 z-[1000] bg-white w-80 max-h-[calc(100vh-12rem)] rounded-lg shadow-xl border border-gray-200 flex-col">
+      {content}
+    </div>
   );
 };
 

@@ -116,7 +116,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({
               location.pathname === "/map" && (
                 <>
                   {/* Desktop Search Bar */}
-                  <div className="hidden sm:flex w-40 md:w-64">
+                  <div className="hidden sm:flex w-40 md:w-72">
                     <GlobalSearch />
                   </div>
                   {/* Mobile Search Icon */}
@@ -143,7 +143,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({
                       key={name}
                       to={path}
                       className={cn(
-                        "flex items-center gap-1 px-2 py-1 rounded-lg transition-all duration-200",
+                        "flex items-center gap-1 px-2 py-2 rounded-lg transition-all duration-200",
                         location.pathname === path
                           ? "bg-blue-600 text-white font-semibold shadow-sm" // Stronger active state
                           : "text-gray-700 hover:bg-gray-100 hover:text-blue-700" // Enhanced hover for inactive

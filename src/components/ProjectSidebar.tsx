@@ -154,7 +154,6 @@ export default function ProjectSidebar({
       >
         {/* Sidebar Header (for mobile toggle) */}
         <div className="flex justify-between items-center mb-6 mt-14 md:hidden ">
-          <h2 className="text-2xl font-bold">Your Projects</h2>
           <button
             onClick={() => setIsOpen(false)}
             className="text-gray-500 hover:text-gray-800 transition-colors p-2 rounded-full hover:bg-gray-200"
