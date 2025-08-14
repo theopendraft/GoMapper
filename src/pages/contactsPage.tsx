@@ -1,17 +1,17 @@
 // src/pages/contactsPage.tsx
 import React, { useEffect, useState, useMemo } from "react";
 import { onSnapshot, setDoc, doc } from "firebase/firestore";
-import { db, getProjectPinsCollection } from "../services/firebase";
+import { getProjectPinsCollection } from "../services/firebase";
 import { Village } from "../types/village";
 import ParentVillageCard from "../Parents/ParentVillageCard";
-import { Input } from "../components/ui/input"; // Assuming you need this for general input
-// import SearchFilters from "../features/Dashboard/components/SearchFilters"; // Not used in ContactsPage based on current structure
-import StatsCards from "../features/Dashboard/components/StatsCards"; // Used for stats display
+import { Input } from "../components/ui/input";
+import StatsCards from "../features/Dashboard/components/StatsCards";
 import { useMapSearch } from "../context/MapSearchContext";
 import { useSnackbar } from "../context/SnackbarContext";
-import { FiCheckCircle, FiSearch, FiX } from "react-icons/fi"; // Added FiSearch and FiX
-import start from "../../public/start.json"; // Adjust path if necessary
+import { FiSearch, FiX, FiLoader, FiAlertTriangle } from "react-icons/fi";
+import start from "../../public/start.json";
 import Lottie from "lottie-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function ContactsPage() {
   const [villages, setVillages] = useState<Village[]>([]);
@@ -97,11 +97,26 @@ export default function ContactsPage() {
         getProjectPinsCollection(currentUser.uid, currentProjectId),
         updated.id.toString()
       );
-      const villageToSave: Village = {
-        ...updated,
-        projectId: currentProjectId,
+
+      // Create a deep copy to avoid mutating the state directly
+      const villageToSave = JSON.parse(JSON.stringify(updated));
+
+      // Firestore doesn't allow 'undefined'. We must clean the object.
+      // This function recursively cleans the object.
+      const cleanObject = (obj: any) => {
+        Object.keys(obj).forEach((key) => {
+          if (obj[key] && typeof obj[key] === "object") {
+            cleanObject(obj[key]);
+          } else if (obj[key] === undefined) {
+            obj[key] = null; // Or delete obj[key];
+          }
+        });
+        return obj;
       };
-      await setDoc(pinDocRef, villageToSave);
+
+      const cleanedVillage = cleanObject(villageToSave);
+
+      await setDoc(pinDocRef, cleanedVillage);
       showSnackbar({
         message: "Pin updated successfully",
         severity: "success",
@@ -122,142 +137,164 @@ export default function ContactsPage() {
     });
   }, [villages, search, filter]);
 
-  // Conditional Rendering for loading/error/no project
-  if (loadingProjects || loadingVillages) {
+  const renderContent = () => {
+    if (loadingProjects || loadingVillages) {
+      return (
+        <div className="flex flex-col justify-center items-center h-full w-full text-gray-700">
+          <FiLoader className="animate-spin h-12 w-12 text-blue-500 mb-4" />
+          <p className="text-lg font-semibold text-gray-600">
+            Loading contacts...
+          </p>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex flex-col justify-center items-center h-full w-full bg-red-50 rounded-2xl p-8 text-center border border-red-200">
+          <FiAlertTriangle className="h-12 w-12 text-red-500 mb-4" />
+          <p className="text-xl font-semibold text-red-700 mb-2">
+            Error loading data!
+          </p>
+          <p className="text-red-600">{error} Please try again later.</p>
+        </div>
+      );
+    }
+
+    if (!currentUser) {
+      return (
+        <div className="flex flex-col justify-center items-center h-full w-full text-center">
+          <p className="text-2xl font-semibold text-gray-800 mb-4">
+            Access Denied
+          </p>
+          <p className="text-gray-500">Please log in to view your contacts.</p>
+        </div>
+      );
+    }
+
+    if (!currentProjectId) {
+      return (
+        <div className="flex flex-col justify-center items-center h-full w-full text-center p-4">
+          <Lottie animationData={start} className="w-48 h-48" />
+          <p className="text-2xl font-semibold mb-2 text-gray-800">
+            Welcome to Your Project!
+          </p>
+          <p className="text-lg max-w-md text-gray-600">
+            Select a project from the sidebar, or create a new one to get
+            started and see your contacts here.
+          </p>
+        </div>
+      );
+    }
+
     return (
-      <div className="flex flex-col justify-center items-center flex-grow h-full bg-gray-100 pt-24 md:pt-28 pb-6">
-        <svg
-          className="animate-spin h-12 w-12 text-blue-500 mb-4"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          ></circle>
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          ></path>
-        </svg>
-        <p className="text-lg font-semibold text-gray-700">
-          Loading contacts...
-        </p>
+      <div className="grid grid-cols-1  gap-8">
+        <aside className="">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <div className="relative w-full">
+                <FiSearch
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
+                <Input
+                  type="search"
+                  placeholder="Search Contacts by Name..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-12 pr-10 py-3 rounded-xl border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-gray-800 placeholder-gray-500"
+                  aria-label="Search Contacts by Name"
+                />
+                {search && (
+                  <button
+                    type="button"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-1"
+                    onClick={() => setSearch("")}
+                    aria-label="Clear search"
+                  >
+                    <FiX size={20} />
+                  </button>
+                )}
+              </div>
+
+              <h2 className="text-xl font-semibold mb-4 text-gray-800">
+                
+              </h2>
+              <StatsCards
+                villages={villages}
+                currentFilter={filter}
+                setFilter={setFilter}
+              />
+            </div>
+          </motion.div>
+        </aside>
+
+        <main className=" ">
+          <AnimatePresence>
+            {filteredVillages.length > 0 ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+              >
+                {filteredVillages.map((village, index) => (
+                  <motion.div
+                    key={village.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                  >
+                    <ParentVillageCard
+                      village={village}
+                      onUpdate={updateVillage}
+                    />
+                  </motion.div>
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="flex flex-col items-center justify-center h-full min-h-[400px] bg-white rounded-2xl p-8 text-center shadow-lg"
+              >
+                <FiSearch size={48} className="text-gray-400 mb-4" />
+                <h3 className="text-2xl font-semibold text-gray-800">
+                  No Contacts Found
+                </h3>
+                <p className="text-gray-500 mt-2 max-w-sm">
+                  Your search for "{search}" with the filter "{filter}" did not
+                  return any results.
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </main>
       </div>
     );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col justify-center items-center flex-grow h-full bg-gray-100 p-4 text-center pt-24 md:pt-28 pb-6">
-        <p className="text-xl font-semibold text-red-600 mb-4">
-          Error loading data!
-        </p>
-        <p className="text-gray-700">{error} Please try again later.</p>
-      </div>
-    );
-  }
-
-  if (!currentUser) {
-    return (
-      <div className="flex flex-col justify-center items-center flex-grow h-full bg-gray-100 p-4 text-center pt-24 md:pt-28 pb-6">
-        <p className="text-xl font-semibold text-gray-700 mb-4">
-          Access Denied
-        </p>
-        <p className="text-gray-600">Please log in to view your contacts.</p>
-      </div>
-    );
-  }
-
-  if (!currentProjectId) {
-    return (
-      <div className="flex flex-col justify-center items-center h-full w-full text-gray-700 text-center p-4 bg-gray-100">
-        {/* You can replace this SVG with a GIF or a more elaborate illustration */}
-        <Lottie animationData={start} className="w-48 h-48" />
-
-        <p className="text-2xl font-semibold mb-2">Welcome to your Map!</p>
-
-        <p className="text-lg max-w-md ">
-          Please use the{" "}
-          <span className="font-medium text-blue-600">
-            sidebar (top-left menu icon)
-          </span>{" "}
-          to{" "}
-          <span className="font-medium text-blue-600">
-            create a new project
-          </span>{" "}
-          to view it's contacts.
-        </p>
-      </div>
-    );
-  }
+  };
 
   return (
-    <div className="px-6 py-8 bg-gray-100 min-h-[calc(100vh-theme(spacing.16))] md:min-h-[calc(100vh-theme(spacing.20))] space-y-6  pb-20">
-      <h1 className="text-3xl md:text-4xl font-extrabold text-gray-700 mb-8">
-        Contacts:{" "}
-        {userProjects.find((p) => p.id === currentProjectId)?.name ||
-          "Current Project"}
-      </h1>
-
-      {/* Search Input - Modernized */}
-      <div className="bg-white p-5 rounded-xl shadow-lg mb-6">
-        <div className="relative w-full">
-          <FiSearch
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            size={20}
-          />
-          <Input
-            type="search"
-            placeholder="Search Pins by Name..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-10 py-3 rounded-xl border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-400"
-            aria-label="Search Pins by Name"
-            spellCheck={false}
-            autoComplete="off"
-          />
-          {search && (
-            <button
-              type="button"
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-1"
-              onClick={() => setSearch("")}
-              aria-label="Clear search"
-            >
-              <FiX size={20} />
-            </button>
-          )}
-        </div>
-      </div>
-      <div className="bg-white p-6 rounded-xl shadow-lg">
-        <StatsCards
-          villages={villages}
-          currentFilter={filter}
-          setFilter={setFilter}
-        />
-      </div>
-
-      {/* 📋 Results */}
-      <div className="space-y-4 mt-4">
-        {filteredVillages.length === 0 ? (
-          <p className="text-lg text-gray-600 italic text-center py-4 mt-4">
-            No matching records found. Try adjusting your search or filters.
+    <div className="min-h-screen bg-gray-100 text-gray-800 p-4 sm:p-6 lg:p-8">
+      <div className="relative max-w-screen-2xl mx-auto z-10">
+        <header className="mb-8">
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+            Project Contacts
+          </h1>
+          <p className="mt-2 text-lg text-gray-600">
+            Manage all contacts for project:{" "}
+            <span className="font-semibold text-blue-600">
+              {userProjects.find((p) => p.id === currentProjectId)?.name ||
+                "..."}
+            </span>
           </p>
-        ) : (
-          filteredVillages.map((village) => (
-            <ParentVillageCard
-              key={village.id}
-              village={village}
-              onUpdate={updateVillage}
-            />
-          ))
-        )}
+        </header>
+        {renderContent()}
       </div>
     </div>
   );

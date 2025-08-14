@@ -326,18 +326,42 @@ export const MapSearchProvider: React.FC<{ children: ReactNode }> = ({
 
   if (authLoading || loadingProjects) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen w-screen bg-gradient-to-br from-blue-600 to-indigo-800 text-white p-4">
-        <div className="relative flex items-center justify-center mb-6">
-          <div className="absolute animate-spin rounded-full h-24 w-24 border-t-4 border-b-4 border-blue-200 opacity-75"></div>
-          <div className="absolute animate-spin-slow rounded-full h-20 w-20 border-t-4 border-b-4 border-indigo-200 opacity-75 [animation-delay:-0.5s]"></div>
-          <img src="/GoMapperW.svg" alt="GoMapper Logo" className="w-10 h-10" />
+      <div
+        className="flex flex-col items-center justify-center h-screen w-screen bg-gray-900 text-white p-4 overflow-hidden"
+        style={
+          {
+            "--grid-color": "rgba(203, 213, 225, 0.1)",
+            "--grid-size": "40px",
+            backgroundImage: `
+            linear-gradient(to bottom, transparent, #111827),
+            linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+            linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px)
+          `,
+            backgroundSize: `100% 100%, var(--grid-size) var(--grid-size), var(--grid-size) var(--grid-size)`,
+          } as React.CSSProperties
+        }
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-indigo-900/30 to-gray-900/40 backdrop-blur-sm"></div>
+
+        <div className="relative z-10 flex flex-col items-center justify-center text-center">
+          {/* Radar/Ping Animation */}
+          <div className="relative flex items-center justify-center w-48 h-48 mb-6">
+            <span className="absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75 animate-ping"></span>
+            <span className="absolute inline-flex rounded-full h-3/4 w-3/4 bg-indigo-500 opacity-75 animate-ping [animation-delay:0.5s]"></span>
+            <img
+              src="/GoMapperW.svg"
+              alt="GoMapper Logo"
+              className="relative w-16 h-16"
+            />
+          </div>
+
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-wide animate-fade-in-up">
+            GoMapper
+          </h2>
+          <p className="text-xl md:text-2xl text-blue-200 animate-fade-in-up animation-delay-200">
+            Loading your personalized map experience...
+          </p>
         </div>
-        <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-wide">
-          GoMapper
-        </h2>
-        <p className="text-xl md:text-2xl text-blue-100 text-center">
-          Loading your personalized map experience...
-        </p>
       </div>
     );
   }

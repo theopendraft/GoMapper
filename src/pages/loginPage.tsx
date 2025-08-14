@@ -6,8 +6,6 @@ import { AuthContextProps } from "../context/AuthContext";
 import { FirebaseError } from "firebase/app";
 import { FiEye, FiEyeOff, FiMail, FiLock, FiLogIn } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
-import { GrMapLocation } from "react-icons/gr"; // Import an icon for the left graphic side
-
 import { useSnackbar } from "../context/SnackbarContext";
 import ForgotPasswordModal from "../components/modals/ForgotPasswordModal";
 import { AnimatePresence, motion } from "framer-motion";
@@ -95,34 +93,42 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-full bg-gradient-to-br from-blue-600 to-indigo-950 flex items-center justify-center p-6 relative">
-      {/* Background Overlay with Blur */}
-      <div className="absolute inset-0 bg-gray-700/50 backdrop-filter backdrop-blur-sm"></div>
+    <div
+      className="min-h-screen w-full bg-gray-900 flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden"
+      style={
+        {
+          "--grid-color": "rgba(203, 213, 225, 0.1)",
+          "--grid-size": "40px",
+          backgroundImage: `
+          linear-gradient(to bottom, transparent, #111827),
+          linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+          linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px)
+        `,
+          backgroundSize: `100% 100%, var(--grid-size) var(--grid-size), var(--grid-size) var(--grid-size)`,
+        } as React.CSSProperties
+      }
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-indigo-900/30 to-gray-900/40 backdrop-blur-sm"></div>
 
       {/* Main Container for Desktop Dual-Pane Layout */}
-      <div className="relative z-10 hidden md:flex w-full max-w-6xl h-[80vh] rounded-2xl shadow-2xl overflow-hidden">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="relative z-10 hidden md:flex w-full max-w-6xl rounded-2xl shadow-2xl overflow-hidden bg-white/5 backdrop-blur-lg border border-white/10"
+      >
         {/* Left Side: SVG Graphics */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-1/2 bg-gradient-to-br from-blue-700 to-indigo-900 flex flex-col items-center justify-center p-8 text-white text-center"
-        >
+        <div className="w-1/2 bg-gradient-to-br from-blue-700/20 to-indigo-900/30 flex flex-col items-center justify-center p-8 text-white text-center">
           <Lottie animationData={Login} className="w-64 h-64 drop-shadow-lg " />
           <h2 className="text-4xl font-extrabold mb-2">GoMapper</h2>
           <p className="text-lg font-light opacity-90">
             Your world, organized and secured.
           </p>
-        </motion.div>
+        </div>
 
         {/* Right Side: Login Form */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-1/2 bg-white flex flex-col justify-center p-12 rounded-r-2xl" // Increased padding for form
-        >
-          <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+        <div className="w-1/2 bg-gray-900/30 flex flex-col justify-center p-12">
+          <h2 className="text-3xl font-bold text-white mb-8 text-center">
             Welcome Back!
           </h2>
 
@@ -132,7 +138,7 @@ export default function LoginPage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="text-red-600 text-sm mb-6 text-center"
+                className="text-red-400 text-sm mb-6 text-center bg-red-900/30 p-3 rounded-lg"
               >
                 {errorMessage}
               </motion.p>
@@ -140,34 +146,30 @@ export default function LoginPage() {
           </AnimatePresence>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {" "}
-            {/* Increased vertical spacing */}
-            {/* Email Input */}
             <div className="relative">
               <FiMail
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" // Adjusted left padding for icon
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                 size={20}
               />
               <input
                 type="email"
-                placeholder="Email Address" // More descriptive placeholder
-                className="w-full px-4 py-3.5 rounded-lg border border-gray-300 shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-gray-800 pl-12" // Applied consistent input styling
+                placeholder="Email Address"
+                className="w-full px-4 py-3.5 rounded-lg border border-gray-600 bg-gray-800/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out pl-12"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
               />
             </div>
-            {/* Password Input */}
             <div className="relative">
               <FiLock
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" // Adjusted left padding for icon
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                 size={20}
               />
               <input
                 type={passwordVisible ? "text" : "password"}
                 placeholder="Password"
-                className="w-full px-4 py-3.5 rounded-lg border border-gray-300 shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-gray-800 pl-12 pr-12" // Applied consistent input styling, added right padding for eye icon
+                className="w-full px-4 py-3.5 rounded-lg border border-gray-600 bg-gray-800/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out pl-12 pr-12"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -176,29 +178,27 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setPasswordVisible(!passwordVisible)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500" // Added focus styles
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 p-1 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                 aria-label={passwordVisible ? "Hide password" : "Show password"}
               >
                 {passwordVisible ? <FiEyeOff size={20} /> : <FiEye size={20} />}
               </button>
             </div>
-            {/* Forgot Password Link */}
             <div className="text-right">
               <button
                 type="button"
                 onClick={() => setIsForgotPasswordModalOpen(true)}
-                className="text-sm text-blue-600 hover:underline font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 rounded" // Added focus styles
+                className="text-sm text-blue-400 hover:underline font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
                 disabled={loading}
               >
                 Forgot Password?
               </button>
             </div>
-            {/* Login Button */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
-              className={`w-full py-3.5 px-4 rounded-lg bg-blue-600 text-white font-semibold text-lg flex items-center justify-center gap-2 shadow-md hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500
+              className={`w-full py-3.5 px-4 rounded-lg bg-blue-600 text-white font-semibold text-lg flex items-center justify-center gap-2 shadow-md hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500
                 ${loading ? "opacity-70 cursor-not-allowed" : ""}
               `}
               disabled={loading}
@@ -233,51 +233,44 @@ export default function LoginPage() {
           </form>
 
           <div className="relative flex items-center justify-center my-8">
-            {" "}
-            {/* Increased vertical margin */}
-            <span className="absolute bg-white px-4 text-sm text-gray-500 font-medium">
+            <span className="absolute bg-gray-900/80 px-4 text-sm text-gray-400 font-medium">
               OR
-            </span>{" "}
-            {/* Increased horizontal padding */}
-            <div className="w-full border-t border-gray-300"></div>
+            </span>
+            <div className="w-full border-t border-gray-600"></div>
           </div>
 
-          {/* Social Login Buttons */}
           <div className="space-y-4">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleGoogleSignIn}
-              className="w-full py-3.5 px-4 rounded-lg border border-gray-300 bg-white text-gray-700 font-semibold text-lg flex items-center justify-center gap-2 shadow-sm hover:bg-gray-50 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500" // Applied consistent button styling
+              className="w-full py-3.5 px-4 rounded-lg border border-gray-600 bg-gray-800/50 text-white font-semibold text-lg flex items-center justify-center gap-3 shadow-sm hover:bg-gray-700/70 transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500"
               disabled={loading}
             >
               <FcGoogle size={24} /> Login with Google
             </motion.button>
           </div>
 
-          {/* Link to Signup */}
-          <p className="text-center text-gray-600 mt-8">
-            {" "}
-            {/* Increased margin top */}
+          <p className="text-center text-gray-400 mt-8">
             Don't have an account?{" "}
             <Link
               to="/signup"
-              className="text-blue-600 hover:underline font-medium"
+              className="text-blue-400 hover:underline font-medium"
             >
               Sign Up
             </Link>
           </p>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
 
-      {/* Mobile View: Small Card Login Form (conditionally shown) */}
+      {/* Mobile View: Small Card Login Form */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
-        className="relative z-10 md:hidden bg-white bg-opacity-95 p-8 rounded-xl shadow-2xl w-full max-w-md mx-auto transform transition-all duration-300 ease-out"
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="relative z-10 md:hidden bg-gray-900/50 backdrop-blur-lg border border-white/10 p-8 rounded-2xl shadow-2xl w-full max-w-md mx-auto"
       >
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+        <h2 className="text-3xl font-bold text-white mb-6 text-center">
           Welcome Back!
         </h2>
 
@@ -287,7 +280,7 @@ export default function LoginPage() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="text-red-600 text-sm mb-4 text-center"
+              className="text-red-400 text-sm mb-4 text-center bg-red-900/30 p-3 rounded-lg"
             >
               {errorMessage}
             </motion.p>
@@ -295,7 +288,6 @@ export default function LoginPage() {
         </AnimatePresence>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Email Input */}
           <div className="relative">
             <FiMail
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -304,7 +296,7 @@ export default function LoginPage() {
             <input
               type="email"
               placeholder="Email"
-              className="w-full px-4 py-3.5 rounded-lg border border-gray-300 shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-gray-800 pl-10"
+              className="w-full px-4 py-3.5 rounded-lg border border-gray-600 bg-gray-800/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out pl-10"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -312,7 +304,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Password Input */}
           <div className="relative">
             <FiLock
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -321,7 +312,7 @@ export default function LoginPage() {
             <input
               type={passwordVisible ? "text" : "password"}
               placeholder="Password"
-              className="w-full px-4 py-3.5 rounded-lg border border-gray-300 shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-gray-800 pl-10 pr-10"
+              className="w-full px-4 py-3.5 rounded-lg border border-gray-600 bg-gray-800/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out pl-10 pr-10"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -330,31 +321,29 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setPasswordVisible(!passwordVisible)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 p-1 rounded-full"
               aria-label={passwordVisible ? "Hide password" : "Show password"}
             >
               {passwordVisible ? <FiEyeOff size={20} /> : <FiEye size={20} />}
             </button>
           </div>
 
-          {/* Forgot Password Link */}
           <div className="text-right">
             <button
               type="button"
               onClick={() => setIsForgotPasswordModalOpen(true)}
-              className="text-sm text-blue-600 hover:underline"
+              className="text-sm text-blue-400 hover:underline"
               disabled={loading}
             >
               Forgot Password?
             </button>
           </div>
 
-          {/* Login Button */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
-            className={`w-full py-3 px-4 rounded-md bg-blue-600 text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition duration-300
+            className={`w-full py-3 px-4 rounded-lg bg-blue-600 text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition duration-300
               ${loading ? "opacity-70 cursor-not-allowed" : ""}
             `}
             disabled={loading}
@@ -389,31 +378,29 @@ export default function LoginPage() {
         </form>
 
         <div className="relative flex items-center justify-center my-6">
-          <span className="absolute bg-white bg-opacity-95 px-3 text-sm text-gray-500">
+          <span className="absolute bg-gray-900/50 px-3 text-sm text-gray-400">
             OR
           </span>
-          <div className="w-full border-t border-gray-300"></div>
+          <div className="w-full border-t border-gray-600"></div>
         </div>
 
-        {/* Social Login Buttons */}
         <div className="space-y-4">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleGoogleSignIn}
-            className="w-full py-3 px-4 rounded-md border border-gray-300 bg-white text-gray-700 font-semibold text-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition duration-300"
+            className="w-full py-3 px-4 rounded-lg border border-gray-600 bg-gray-800/50 text-white font-semibold text-lg flex items-center justify-center gap-3 hover:bg-gray-700/70 transition duration-300"
             disabled={loading}
           >
             <FcGoogle size={24} /> Login with Google
           </motion.button>
         </div>
 
-        {/* Link to Signup */}
-        <p className="text-center text-gray-600 mt-6">
+        <p className="text-center text-gray-400 mt-6">
           Don't have an account?{" "}
           <Link
             to="/signup"
-            className="text-blue-600 hover:underline font-medium"
+            className="text-blue-400 hover:underline font-medium"
           >
             Sign Up
           </Link>

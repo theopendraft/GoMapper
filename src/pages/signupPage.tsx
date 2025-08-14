@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContextProps } from "../context/AuthContext";
-import { updateProfile } from "firebase/auth"; // Explicitly imported updateProfile
+import { updateProfile } from "firebase/auth";
 import {
   FiEye,
   FiEyeOff,
@@ -14,9 +14,10 @@ import {
 } from "react-icons/fi";
 import { useSnackbar } from "../context/SnackbarContext";
 import { FcGoogle } from "react-icons/fc";
-import { GrMapLocation } from "react-icons/gr"; // Icon for the left graphic side
 import { AnimatePresence, motion } from "framer-motion";
-import { FirebaseError } from "firebase/app"; // Import FirebaseError for type checking
+import { FirebaseError } from "firebase/app";
+import Lottie from "lottie-react";
+import StartAnimation from "../../public/start.json"; // Using a more relevant animation
 
 export default function SignupPage() {
   const { signup, signInWithGoogle } = useAuth() as AuthContextProps;
@@ -30,7 +31,7 @@ export default function SignupPage() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(""); // Renamed 'error' to 'errorMessage' for consistency
+  const [errorMessage, setErrorMessage] = useState("");
 
   const getAuthErrorMessage = (error: any): string => {
     if (error instanceof FirebaseError) {
@@ -58,7 +59,7 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage(""); // Clear previous errors
+    setErrorMessage("");
     setLoading(true);
 
     if (password !== confirmPassword) {
@@ -78,20 +79,17 @@ export default function SignupPage() {
     }
 
     try {
-      const userCredential = await signup(email, password); // This now correctly resolves to UserCredential
-
-      // Update user profile with username (display name)
+      const userCredential = await signup(email, password);
       if (userCredential.user) {
         await updateProfile(userCredential.user, {
           displayName: username.trim(),
         });
       }
-
       showSnackbar({
         message: "Account created successfully!",
         severity: "success",
       });
-      navigate("/map"); // Redirect to map after successful signup
+      navigate("/map");
     } catch (error: any) {
       console.error("Signup error:", error);
       const msg = getAuthErrorMessage(error);
@@ -104,14 +102,14 @@ export default function SignupPage() {
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
-    setErrorMessage(""); // Clear previous errors
+    setErrorMessage("");
     try {
       await signInWithGoogle();
       showSnackbar({
         message: "Login successful with Google!",
         severity: "success",
       });
-      navigate("/map"); // Redirect to map after successful signup
+      navigate("/map");
     } catch (error: any) {
       console.error("Google sign-in error:", error);
       const msg = getAuthErrorMessage(error);
@@ -123,34 +121,45 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-full bg-gradient-to-br from-blue-600 to-indigo-950 flex items-center justify-center p-6 relative">
-      {/* Background Overlay with Blur */}
-      <div className="absolute inset-0 bg-gray-700/50 backdrop-filter backdrop-blur-sm"></div>
+    <div
+      className="min-h-screen w-full bg-gray-900 flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden"
+      style={
+        {
+          "--grid-color": "rgba(203, 213, 225, 0.1)",
+          "--grid-size": "40px",
+          backgroundImage: `
+          linear-gradient(to bottom, transparent, #111827),
+          linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+          linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px)
+        `,
+          backgroundSize: `100% 100%, var(--grid-size) var(--grid-size), var(--grid-size) var(--grid-size)`,
+        } as React.CSSProperties
+      }
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-indigo-900/30 to-gray-900/40 backdrop-blur-sm"></div>
 
       {/* Main Container for Desktop Dual-Pane Layout */}
-      <div className="relative z-10 hidden md:flex w-3/4 h-[80vh]  max-w-6xl rounded-2xl shadow-2xl overflow-hidden">
-        {/* Left Side: SVG Graphics */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-1/2 bg-gradient-to-br from-blue-700 to-indigo-900 flex flex-col items-center justify-center p-8 text-white text-center"
-        >
-          <GrMapLocation className="w-48 h-48 text-blue-200 mb-6 drop-shadow-lg" />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="relative z-10 hidden md:flex w-full max-w-6xl rounded-2xl shadow-2xl overflow-hidden bg-white/5 backdrop-blur-lg border border-white/10"
+      >
+        {/* Left Side: Graphics */}
+        <div className="w-1/2 bg-gradient-to-br from-blue-700/20 to-indigo-900/30 flex flex-col items-center justify-center p-8 text-white text-center">
+          <Lottie
+            animationData={StartAnimation}
+            className="w-64 h-64 drop-shadow-lg"
+          />
           <h2 className="text-4xl font-extrabold mb-2">Join GoMapper!</h2>
           <p className="text-lg font-light opacity-90">
             Start organizing your world, pin by pin.
           </p>
-        </motion.div>
+        </div>
 
         {/* Right Side: Signup Form */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-1/2 bg-white flex flex-col justify-center p-12 rounded-r-2xl"
-        >
-          <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+        <div className="w-1/2 bg-gray-900/30 flex flex-col justify-center p-12">
+          <h2 className="text-3xl font-bold text-white mb-8 text-center">
             Create Your Account
           </h2>
 
@@ -160,7 +169,7 @@ export default function SignupPage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="text-red-600 text-sm mb-6 text-center"
+                className="text-red-400 text-sm mb-6 text-center bg-red-900/30 p-3 rounded-lg"
               >
                 {errorMessage}
               </motion.p>
@@ -168,7 +177,7 @@ export default function SignupPage() {
           </AnimatePresence>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Username Input */}
+            {/* Form fields */}
             <div className="relative">
               <FiUser
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
@@ -177,15 +186,13 @@ export default function SignupPage() {
               <input
                 type="text"
                 placeholder="Username"
-                className="w-full px-4 py-3.5 rounded-lg border border-gray-300 shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-gray-800 pl-12"
+                className="w-full px-4 py-3.5 rounded-lg border border-gray-600 bg-gray-800/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition pl-12"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 disabled={loading}
               />
             </div>
-
-            {/* Email Input */}
             <div className="relative">
               <FiMail
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
@@ -194,15 +201,13 @@ export default function SignupPage() {
               <input
                 type="email"
                 placeholder="Email Address"
-                className="w-full px-4 py-3.5 rounded-lg border border-gray-300 shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-gray-800 pl-12"
+                className="w-full px-4 py-3.5 rounded-lg border border-gray-600 bg-gray-800/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition pl-12"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
               />
             </div>
-
-            {/* Password Input */}
             <div className="relative">
               <FiLock
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
@@ -211,7 +216,7 @@ export default function SignupPage() {
               <input
                 type={passwordVisible ? "text" : "password"}
                 placeholder="Password"
-                className="w-full px-4 py-3.5 rounded-lg border border-gray-300 shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-gray-800 pl-12 pr-12"
+                className="w-full px-4 py-3.5 rounded-lg border border-gray-600 bg-gray-800/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition pl-12 pr-12"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -220,14 +225,12 @@ export default function SignupPage() {
               <button
                 type="button"
                 onClick={() => setPasswordVisible(!passwordVisible)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 aria-label={passwordVisible ? "Hide password" : "Show password"}
               >
                 {passwordVisible ? <FiEyeOff size={20} /> : <FiEye size={20} />}
               </button>
             </div>
-
-            {/* Confirm Password Input */}
             <div className="relative">
               <FiLock
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
@@ -236,7 +239,7 @@ export default function SignupPage() {
               <input
                 type={confirmPasswordVisible ? "text" : "password"}
                 placeholder="Confirm Password"
-                className="w-full px-4 py-3.5 rounded-lg border border-gray-300 shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-gray-800 pl-12 pr-12"
+                className="w-full px-4 py-3.5 rounded-lg border border-gray-600 bg-gray-800/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition pl-12 pr-12"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -247,7 +250,7 @@ export default function SignupPage() {
                 onClick={() =>
                   setConfirmPasswordVisible(!confirmPasswordVisible)
                 }
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 aria-label={
                   confirmPasswordVisible
                     ? "Hide confirm password"
@@ -261,15 +264,13 @@ export default function SignupPage() {
                 )}
               </button>
             </div>
-
-            {/* Sign Up Button */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
-              className={`w-full py-3.5 px-4 rounded-lg bg-blue-600 text-white font-semibold text-lg flex items-center justify-center gap-2 shadow-md hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500
-                ${loading ? "opacity-70 cursor-not-allowed" : ""}
-              `}
+              className={`w-full py-3.5 px-4 rounded-lg bg-blue-600 text-white font-semibold text-lg flex items-center justify-center gap-2 shadow-md hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500 ${
+                loading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
               disabled={loading}
             >
               {loading ? (
@@ -302,46 +303,42 @@ export default function SignupPage() {
           </form>
 
           <div className="relative flex items-center justify-center my-8">
-            <span className="absolute bg-white px-4 text-sm text-gray-500 font-medium">
+            <span className="absolute bg-gray-900/80 px-4 text-sm text-gray-400 font-medium">
               OR
             </span>
-            <div className="w-full border-t border-gray-300"></div>
+            <div className="w-full border-t border-gray-600"></div>
           </div>
 
-          {/* Social Login Buttons */}
-          <div className="space-y-4">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleGoogleSignIn}
-              className="w-full py-3.5 px-4 rounded-lg border border-gray-300 bg-white text-gray-700 font-semibold text-lg flex items-center justify-center gap-2 shadow-sm hover:bg-gray-50 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={loading}
-            >
-              <FcGoogle size={24} /> Sign Up with Google
-            </motion.button>
-          </div>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleGoogleSignIn}
+            className="w-full py-3.5 px-4 rounded-lg border border-gray-600 bg-gray-800/50 text-white font-semibold text-lg flex items-center justify-center gap-3 shadow-sm hover:bg-gray-700/70 transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500"
+            disabled={loading}
+          >
+            <FcGoogle size={24} /> Sign Up with Google
+          </motion.button>
 
-          {/* Link to Login */}
-          <p className="text-center text-gray-600 mt-8">
+          <p className="text-center text-gray-400 mt-8">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="text-blue-600 hover:underline font-medium"
+              className="text-blue-400 hover:underline font-medium"
             >
               Login
             </Link>
           </p>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
 
-      {/* Mobile View: Small Card Signup Form (conditionally shown) */}
+      {/* Mobile View: Small Card Signup Form */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
-        className="relative z-10 md:hidden bg-white bg-opacity-95 p-8 rounded-xl shadow-2xl w-full max-w-md mx-auto transform transition-all duration-300 ease-out"
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="relative z-10 md:hidden bg-gray-900/50 backdrop-blur-lg border border-white/10 p-8 rounded-2xl shadow-2xl w-full max-w-md mx-auto"
       >
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+        <h2 className="text-3xl font-bold text-white mb-6 text-center">
           Create Your Account
         </h2>
 
@@ -351,7 +348,7 @@ export default function SignupPage() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="text-red-600 text-sm mb-4 text-center"
+              className="text-red-400 text-sm mb-4 text-center bg-red-900/30 p-3 rounded-lg"
             >
               {errorMessage}
             </motion.p>
@@ -359,7 +356,7 @@ export default function SignupPage() {
         </AnimatePresence>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Username Input */}
+          {/* Form fields */}
           <div className="relative">
             <FiUser
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -368,15 +365,13 @@ export default function SignupPage() {
             <input
               type="text"
               placeholder="Username"
-              className="w-full px-4 py-3.5 rounded-lg border border-gray-300 shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-gray-800 pl-10"
+              className="w-full px-4 py-3.5 rounded-lg border border-gray-600 bg-gray-800/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition pl-10"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
               disabled={loading}
             />
           </div>
-
-          {/* Email Input */}
           <div className="relative">
             <FiMail
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -385,15 +380,13 @@ export default function SignupPage() {
             <input
               type="email"
               placeholder="Email"
-              className="w-full px-4 py-3.5 rounded-lg border border-gray-300 shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-gray-800 pl-10"
+              className="w-full px-4 py-3.5 rounded-lg border border-gray-600 bg-gray-800/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition pl-10"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={loading}
             />
           </div>
-
-          {/* Password Input */}
           <div className="relative">
             <FiLock
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -402,7 +395,7 @@ export default function SignupPage() {
             <input
               type={passwordVisible ? "text" : "password"}
               placeholder="Password"
-              className="w-full px-4 py-3.5 rounded-lg border border-gray-300 shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-gray-800 pl-10 pr-10"
+              className="w-full px-4 py-3.5 rounded-lg border border-gray-600 bg-gray-800/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition pl-10 pr-10"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -411,14 +404,12 @@ export default function SignupPage() {
             <button
               type="button"
               onClick={() => setPasswordVisible(!passwordVisible)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 p-1 rounded-full"
               aria-label={passwordVisible ? "Hide password" : "Show password"}
             >
               {passwordVisible ? <FiEyeOff size={20} /> : <FiEye size={20} />}
             </button>
           </div>
-
-          {/* Confirm Password Input */}
           <div className="relative">
             <FiLock
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -427,7 +418,7 @@ export default function SignupPage() {
             <input
               type={confirmPasswordVisible ? "text" : "password"}
               placeholder="Confirm Password"
-              className="w-full px-4 py-3.5 rounded-lg border border-gray-300 shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-gray-800 pl-10 pr-10"
+              className="w-full px-4 py-3.5 rounded-lg border border-gray-600 bg-gray-800/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition pl-10 pr-10"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
@@ -436,7 +427,7 @@ export default function SignupPage() {
             <button
               type="button"
               onClick={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 p-1 rounded-full"
               aria-label={
                 confirmPasswordVisible
                   ? "Hide confirm password"
@@ -450,15 +441,13 @@ export default function SignupPage() {
               )}
             </button>
           </div>
-
-          {/* Sign Up Button */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
-            className={`w-full py-3 px-4 rounded-md bg-blue-600 text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition duration-300
-              ${loading ? "opacity-70 cursor-not-allowed" : ""}
-            `}
+            className={`w-full py-3 px-4 rounded-lg bg-blue-600 text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition duration-300 ${
+              loading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
             disabled={loading}
           >
             {loading ? (
@@ -491,31 +480,27 @@ export default function SignupPage() {
         </form>
 
         <div className="relative flex items-center justify-center my-6">
-          <span className="absolute bg-white bg-opacity-95 px-3 text-sm text-gray-500">
+          <span className="absolute bg-gray-900/50 px-3 text-sm text-gray-400">
             OR
           </span>
-          <div className="w-full border-t border-gray-300"></div>
+          <div className="w-full border-t border-gray-600"></div>
         </div>
 
-        {/* Social Login Buttons */}
-        <div className="space-y-4">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleGoogleSignIn}
-            className="w-full py-3 px-4 rounded-md border border-gray-300 bg-white text-gray-700 font-semibold text-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition duration-300"
-            disabled={loading}
-          >
-            <FcGoogle size={24} /> Sign Up with Google
-          </motion.button>
-        </div>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleGoogleSignIn}
+          className="w-full py-3 px-4 rounded-lg border border-gray-600 bg-gray-800/50 text-white font-semibold text-lg flex items-center justify-center gap-3 hover:bg-gray-700/70 transition duration-300"
+          disabled={loading}
+        >
+          <FcGoogle size={24} /> Sign Up with Google
+        </motion.button>
 
-        {/* Link to Login */}
-        <p className="text-center text-gray-600 mt-6">
+        <p className="text-center text-gray-400 mt-6">
           Already have an account?{" "}
           <Link
             to="/login"
-            className="text-blue-600 hover:underline font-medium"
+            className="text-blue-400 hover:underline font-medium"
           >
             Login
           </Link>

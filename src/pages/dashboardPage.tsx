@@ -1,7 +1,7 @@
 // src/pages/dashboardPage.tsx
 import React, { useEffect, useState, useMemo } from "react";
 import { onSnapshot } from "firebase/firestore";
-import { db, getProjectPinsCollection } from "../services/firebase";
+import { getProjectPinsCollection } from "../services/firebase";
 import { Village } from "../types/village";
 import StatsCards from "../features/Dashboard/components/StatsCards";
 import VillageChart from "../features/Dashboard/components/VillageChart";
@@ -9,11 +9,20 @@ import VisitCalendar from "../features/Dashboard/components/VisitCalendar";
 import ActivityLog from "../features/Dashboard/components/ActivityLog";
 import VillageList from "../features/Dashboard/components/VillageList";
 import { useMapSearch } from "../context/MapSearchContext";
-import { useSnackbar } from "../context/SnackbarContext";
-import { FiCheckCircle, FiSearch, FiX } from "react-icons/fi"; // Added FiSearch and FiX for search input
-import { Input } from "../components/ui/input"; // Assuming you have a reusable Input component
-import start from "../../public/start.json"; // Adjust path if necessary
+import { Input } from "../components/ui/input";
+import start from "../../public/start.json";
 import Lottie from "lottie-react";
+import {
+  FiSearch,
+  FiX,
+  FiLoader,
+  FiAlertTriangle,
+  FiGrid,
+  FiList,
+} from "react-icons/fi";
+import { AnimatePresence, motion } from "framer-motion";
+
+type ViewMode = "grid" | "list";
 
 export default function DashboardPage() {
   const [villages, setVillages] = useState<Village[]>([]);
@@ -23,10 +32,10 @@ export default function DashboardPage() {
   const [filter, setFilter] = useState<
     "all" | "visited" | "planned" | "not-visited"
   >("all");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   const { currentUser, currentProjectId, loadingProjects, userProjects } =
     useMapSearch();
-  const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
@@ -96,147 +105,170 @@ export default function DashboardPage() {
     });
   }, [villages, search, filter]);
 
-  // Conditional Rendering for loading/error/no project
-  if (loadingProjects || loadingVillages) {
+  const renderContent = () => {
+    if (loadingProjects || loadingVillages) {
+      return (
+        <div className="flex flex-col justify-center items-center h-full w-full text-gray-600">
+          <FiLoader className="animate-spin h-12 w-12 text-cyan-400 mb-4" />
+          <p className="text-lg font-semibold text-gray-25">
+            Loading dashboard...
+          </p>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex flex-col justify-center items-center h-full w-full bg-red-900/20 rounded-2xl p-8 text-center ring-1 ring-red-500/50">
+          <FiAlertTriangle className="h-12 w-12 text-red-400 mb-4" />
+          <p className="text-xl font-semibold text-gray-600 mb-2">
+            Error loading data!
+          </p>
+          <p className="text-red-300">{error} Please try again later.</p>
+        </div>
+      );
+    }
+
+    if (!currentUser) {
+      return (
+        <div className="flex flex-col justify-center items-center h-full w-full text-center">
+          <p className="text-2xl font-semibold text-gray-600 mb-4">
+            Access Denied
+          </p>
+          <p className="text-gray-500">Please log in to view your dashboard.</p>
+        </div>
+      );
+    }
+
+    if (!currentProjectId) {
+      return (
+        <div className="flex flex-col justify-center items-center h-full w-full text-center p-4">
+          <Lottie animationData={start} className="w-48 h-48" />
+          <p className="text-2xl font-semibold mb-2 text-gray-600">
+            Welcome to Your Dashboard!
+          </p>
+          <p className="text-lg max-w-md text-gray-500">
+            Select a project from the sidebar, or create a new one to get
+            started.
+          </p>
+        </div>
+      );
+    }
+
     return (
-      <div className="flex flex-col justify-center items-center flex-grow h-full bg-gray-100 pt-24 md:pt-28 pb-6">
-        <svg
-          className="animate-spin h-12 w-12 text-blue-500 mb-4"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          ></circle>
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          ></path>
-        </svg>
-        <p className="text-lg font-semibold text-gray-700">
-          Loading dashboard...
-        </p>
+      <div className="grid grid-cols-1  gap-8">
+        <aside className="">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <div className="relative w-full">
+                <FiSearch
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
+                <Input
+                  type="search"
+                  placeholder="Search Locations by Name..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-12 pr-10 py-3 rounded-xl border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-gray-800 placeholder-gray-500"
+                  aria-label="Search Locations by Name"
+                />
+                {search && (
+                  <button
+                    type="button"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-1"
+                    onClick={() => setSearch("")}
+                    aria-label="Clear search"
+                  >
+                    <FiX size={20} />
+                  </button>
+                )}
+              </div>
+ 
+              <h2 className="text-xl font-semibold mb-4 text-gray-800">
+                
+              </h2>
+              <StatsCards
+                villages={villages}
+                currentFilter={filter}
+                setFilter={setFilter}
+              />
+            </div>
+          </motion.div>
+        </aside>
+        <main className="">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className=" bg-white rounded-2xl p-6 shadow-sm"
+            >
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+                Coverage Status
+              </h2>
+              <VillageChart villages={filteredVillages} />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className=" bg-white rounded-2xl p-6 shadow-sm"
+            >
+              <VisitCalendar villages={filteredVillages} />
+            </motion.div>
+
+
+
+            <AnimatePresence>
+              {viewMode === "grid" ? (
+                <motion.div
+                  key="grid"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="grid gap-6"
+                >
+                  <VillageList villages={filteredVillages} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="list"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="bg-white rounded-2xl p-6 shadow-sm"
+                >
+                  <ActivityLog villages={filteredVillages} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+        </div>
+        </main>
       </div>
     );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col justify-center items-center flex-grow h-full bg-gray-100 p-4 text-center pt-24 md:pt-28 pb-6">
-        <p className="text-xl font-semibold text-red-600 mb-4">
-          Error loading data!
-        </p>
-        <p className="text-gray-700">{error} Please try again later.</p>
-      </div>
-    );
-  }
-
-  if (!currentUser) {
-    return (
-      <div className="flex flex-col justify-center items-center flex-grow h-full bg-gray-100 p-4 text-center pt-24 md:pt-28 pb-6">
-        <p className="text-xl font-semibold text-gray-700 mb-4">
-          Access Denied
-        </p>
-        <p className="text-gray-600">Please log in to view your dashboard.</p>
-      </div>
-    );
-  }
-
-  if (!currentProjectId) {
-    return (
-      <div className="flex flex-col justify-center items-center h-full w-full text-gray-700 text-center p-4 bg-gray-100">
-        {/* You can replace this SVG with a GIF or a more elaborate illustration */}
-        <Lottie animationData={start} className="w-48 h-48" />
-
-        <p className="text-2xl font-semibold mb-2">Welcome to your Map!</p>
-
-        <p className="text-lg max-w-md ">
-          Please use the{" "}
-          <span className="font-medium text-blue-600">
-            sidebar (top-left menu icon)
-          </span>{" "}
-          to{" "}
-          <span className="font-medium text-blue-600">
-            create a new project
-          </span>{" "}
-          to view it's dashboard.
-        </p>
-      </div>
-    );
-  }
+  };
 
   return (
-    <div className="px-6 py-8 bg-gray-100 min-h-[calc(100vh-theme(spacing.16))] md:min-h-[calc(100vh-theme(spacing.20))] space-y-6 pb-20">
-      <h1 className="text-3xl md:text-4xl font-extrabold text-gray-700 mb-8">
-        Dashboard:{" "}
-        {userProjects.find((p) => p.id === currentProjectId)?.name ||
-          "Current Project"}
-      </h1>
+    <div className="min-h-screen bg-gray-100 text-gray-800 p-4 sm:p-6 lg:p-8">
+      <div className="relative max-w-screen-2xl mx-auto z-10">
+        <header className="mb-8">
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+            Project Dashboard
+          </h1>
+          <p className="mt-2 text-lg text-gray-600">
+            An overview of your progress for project:{" "}
+            <span className="font-semibold text-blue-600">
+              {userProjects.find((p) => p.id === currentProjectId)?.name ||
+                "..."}
+            </span>
+          </p>
+        </header>
 
-      {/* Search Input - Modernized */}
-      <div className="bg-white p-5 rounded-xl shadow-lg mb-6">
-        <div className="relative w-full">
-          <FiSearch
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            size={20}
-          />
-          <Input
-            type="search"
-            placeholder="Search Pins by Name..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-10 py-3 rounded-xl border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-400"
-            aria-label="Search Pins by Name"
-            spellCheck={false}
-            autoComplete="off"
-          />
-          {search && (
-            <button
-              type="button"
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-1"
-              onClick={() => setSearch("")}
-              aria-label="Clear search"
-            >
-              <FiX size={20} />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Stats Cards - Wrapped in a consistent card container */}
-      <div className="bg-white p-6 rounded-xl shadow-lg">
-        <StatsCards
-          villages={villages} // Pass all fetched villages to StatsCards
-          currentFilter={filter} // Pass current active filter
-          setFilter={setFilter} // Pass setter to allow StatsCards to change filter
-        />
-      </div>
-
-      {/* Charts and Calendars */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-lg">
-          <VillageChart villages={filteredVillages} />
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow-lg">
-          <VisitCalendar villages={filteredVillages} />
-        </div>
-      </div>
-
-      {/* Activity Log and Village List */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-lg">
-          <ActivityLog villages={filteredVillages} />
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow-lg">
-          <VillageList villages={filteredVillages} />
-        </div>
+        {renderContent()}
       </div>
     </div>
   );

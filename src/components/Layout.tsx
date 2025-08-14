@@ -78,7 +78,14 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({
           `}
       >
         {/* Top Navigation Bar */}
-        <nav className="fixed top-0 left-0 right-0 bg-white/20 backdrop-blur-md h-16 md:h-16 flex justify-between items-center px-4 md:px-8 z-[1030] shadow-sm">
+        <nav
+          className={cn(
+            "fixed top-0 left-0 right-0 h-16 md:h-16 flex justify-between items-center px-4 md:px-8 z-[1030] transition-colors duration-300",
+            currentUser
+              ? "bg-white/20 backdrop-blur-md shadow-sm"
+              : "bg-white bg-transparent"
+          )}
+        >
           <div className="flex items-center">
             {/* Sidebar Toggle Button - visible only on smaller screens */}
             {currentUser &&
@@ -167,7 +174,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({
         </nav>
 
         {/* Main Content Area - pushed down by fixed navbar */}
-        <main className="flex-grow pt-16 md:pt-20">
+        <main className="flex-grow pt-16">
           {" "}
           {/* Match pt to navbar height */}
           {children}{" "}
@@ -212,5 +219,3 @@ export default function Layout({ children }: LayoutProps) {
     </MapSearchProvider>
   );
 }
-
-
