@@ -312,7 +312,7 @@ const PanelContent: React.FC<PanelContentProps> = ({
         </Button>
       </div>
       {/* Filtered List Preview */}
-      <div className="flex flex-col flex-1 min-h-0 pb-10">
+      <div className="flex flex-col flex-1 min-h-0 pb-16">
         <div className="text-xs text-gray-500 mb-6 select-none">
           Showing{" "}
           <span className="font-semibold">{filteredVillages.length}</span> of{" "}
