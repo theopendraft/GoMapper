@@ -18,7 +18,7 @@ import MobileSearchModal from "./modals/MobileSearchModal";
 const navLinks = [
   { name: "Map View", path: "/map", Icon: RiMapPin5Line },
   { name: "Dashboard", path: "/dashboard", Icon: AiOutlineDashboard },
-  { name: "Contacts", path: "/contacts", Icon: LuContactRound },
+  { name: "Pin Details", path: "/contacts", Icon: LuContactRound },
 ];
 
 interface LayoutProps {

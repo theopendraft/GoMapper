@@ -152,23 +152,14 @@ export default function ProjectSidebar({
           scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-gray-200 // Custom scrollbar (requires tailwind-scrollbar plugin)
         `}
       >
-        {/* Sidebar Header (for mobile toggle) */}
-        <div className="flex justify-between items-center mb-6 mt-14 md:hidden ">
-          <button
-            onClick={() => setIsOpen(false)}
-            className="text-gray-500 hover:text-gray-800 transition-colors p-2 rounded-full hover:bg-gray-200"
-            aria-label="Close project sidebar"
-          >
-            <FiChevronLeft size={24} />
-          </button>
-        </div>
+
 
         {/* Desktop Header (always visible) */}
         <div className="hidden md:flex justify-between items-center mt-14">
           {/* <h2 className="text-2xl font-bold text-gray-500">GoMapper</h2> */}
         </div>
         {/* Tab Navigation */}
-        <div className="flex border-b border-gray-200 mb-4">
+        <div className="flex border-b border-gray-200 mb-4 mt-14">
           <button
             onClick={() => setActiveTab("projects")}
             className={`flex-1 pb-2 font-medium flex items-center justify-center gap-2 transition-colors border-blue-800 ${
@@ -179,6 +170,17 @@ export default function ProjectSidebar({
           >
             <FiList /> Projects
           </button>
+
+        {/* Sidebar Header (for mobile toggle) */}
+
+          <button
+            onClick={() => setIsOpen(false)}
+            className="text-gray-500 hover:text-gray-800 transition-colors p-2 rounded-full hover:bg-gray-200 md:hidden "
+            aria-label="Close project sidebar"
+          >
+            <FiChevronLeft size={24} />
+          </button>
+
           {/* <button
             onClick={() => setActiveTab("routes")}
             className={`flex-1 py-2 text-sm font-medium flex items-center justify-center gap-2 transition-colors ${

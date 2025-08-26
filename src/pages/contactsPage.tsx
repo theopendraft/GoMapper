@@ -188,7 +188,7 @@ export default function ContactsPage() {
     }
 
     return (
-      <div className="grid grid-cols-1  gap-8">
+      <div className="grid grid-cols-1 mb-24 md:mb-0 gap-8">
         <aside className="">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -284,10 +284,10 @@ export default function ContactsPage() {
       <div className="relative max-w-screen-2xl mx-auto z-10">
         <header className="mb-8">
           <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-            Project Contacts
+            Project Pins
           </h1>
           <p className="mt-2 text-lg text-gray-600">
-            Manage all contacts for project:{" "}
+            Manage all Pins for project:{" "}
             <span className="font-semibold text-blue-600">
               {userProjects.find((p) => p.id === currentProjectId)?.name ||
                 "..."}

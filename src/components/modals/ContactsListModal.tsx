@@ -67,7 +67,7 @@ export default function ContactsListModal({
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -50 }}
-        className="bg-white rounded-xl shadow-2xl w-full  sm:h-auto sm:max-w-2xl sm:max-h-[90vh] flex flex-col "
+        className="bg-white rounded-xl shadow-2xl w-full  sm:h-auto sm:max-w-2xl sm:max-h-[90vh] flex flex-col "     
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200">

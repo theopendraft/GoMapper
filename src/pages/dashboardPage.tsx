@@ -156,7 +156,7 @@ export default function DashboardPage() {
     }
 
     return (
-      <div className="grid grid-cols-1  gap-8">
+      <div className="grid grid-cols-1 mb-24 md:mb-0 gap-8">
         <aside className="">
           <motion.div
             initial={{ opacity: 0, y: -20 }}

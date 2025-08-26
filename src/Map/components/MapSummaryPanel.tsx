@@ -207,7 +207,7 @@ const PanelContent: React.FC<PanelContentProps> = ({
   }
 
   return (
-    <div className="flex flex-col flex-grow w-full opacity-100 transition-opacity duration-300 delay-150 p-4 ">
+    <div className="flex flex-col flex-grow w-full opacity-100 transition-opacity duration-300 delay-150 p-4 h-24">
       {/* Header */}
       <div className="flex items-center justify-between mt-4 mb-4">
         <h2 className="text-2xl font-bold text-gray-700 tracking-tight select-none">
@@ -312,7 +312,7 @@ const PanelContent: React.FC<PanelContentProps> = ({
         </Button>
       </div>
       {/* Filtered List Preview */}
-      <div className="flex flex-col flex-1 min-h-0 pb-16">
+      <div className="flex flex-col flex-1 min-h-0 pb-16 md:pb-0">
         <div className="text-xs text-gray-500 mb-6 select-none">
           Showing{" "}
           <span className="font-semibold">{filteredVillages.length}</span> of{" "}
@@ -545,7 +545,7 @@ export default function MapSummaryPanel({
         fixed bottom-24 md:bottom-6 right-3 z-[1010] hover:scale-105
         ${
           isOpen
-            ? "p-5 h-[63vh] md:h-[80vh] w-80 md:w-[360px] rounded-xl" // Expanded state
+            ? "p-5 h-[63vh] md:h-[80vh] w-80 md:w-96 rounded-xl" // Expanded state
             : "h-14 w-14 items-center justify-center p-0 rounded-full" // Collapsed state
         }
         ${
@@ -554,8 +554,8 @@ export default function MapSummaryPanel({
       `}
       style={{
         width: isOpen ? `${panelRef.current?.offsetWidth ?? 360}px` : "3.5rem",
-        minWidth: isOpen ? "250px" : "3.5rem",
-        maxWidth: isOpen ? "600px" : "3.5rem",
+        minWidth: isOpen ? "360px" : "3.5rem",
+        maxWidth: isOpen ? "800px" : "3.5rem",
         minHeight: isOpen ? "300px" : "3.5rem",
         height: isOpen ? "63vh" : "3.5rem", // Adjusted height percentage
         userSelect: isResizing.current ? "none" : "auto",
