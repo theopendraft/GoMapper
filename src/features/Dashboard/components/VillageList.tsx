@@ -31,7 +31,7 @@ export default function VillageList({
   return (
     <div className="bg-white p-4 rounded-lg shadow-md">
       <h3 className="text-lg font-semibold mb-4 pb-2 border-b border-gray-200 text-gray-800">All Pins</h3>
-      <div className="max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
+      <div className="max-h-[440px] overflow-y-auto pr-2 custom-scrollbar">
         {villages.length === 0 ? (
           <div className="text-center text-gray-500 py-8">
             <p>{emptyMessage}</p>

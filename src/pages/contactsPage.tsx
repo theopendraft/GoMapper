@@ -261,7 +261,7 @@ export default function ContactsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="flex flex-col items-center justify-center h-full min-h-[400px] bg-white rounded-2xl p-8 text-center shadow-lg"
+                className="flex flex-col items-center justify-center h-full min-h-[400px] bg-white rounded-2xl p-8 text-center shadow-lg "
               >
                 <FiSearch size={48} className="text-gray-400 mb-4" />
                 <h3 className="text-2xl font-semibold text-gray-800">

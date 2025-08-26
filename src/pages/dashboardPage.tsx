@@ -206,7 +206,7 @@ export default function DashboardPage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className=" bg-white rounded-2xl p-6 shadow-sm"
+              className=" bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow duration-200 hover:scale-105"
             >
               <h2 className="text-2xl font-semibold text-gray-800 mb-4">
                 Coverage Status
@@ -217,7 +217,7 @@ export default function DashboardPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className=" bg-white rounded-2xl p-6 shadow-sm"
+              className=" bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow duration-200 hover:scale-105 "
             >
               <VisitCalendar villages={filteredVillages} />
             </motion.div>
@@ -239,7 +239,7 @@ export default function DashboardPage() {
                   key="list"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="bg-white rounded-2xl p-6 shadow-sm"
+                  className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow duration-200 hover:scale-105"
                 >
                   <ActivityLog villages={filteredVillages} />
                 </motion.div>

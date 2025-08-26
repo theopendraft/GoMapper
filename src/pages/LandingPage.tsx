@@ -52,7 +52,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-[#1a2035] to-gray-900 text-white scrollbar-hide">
       {/* Hero Section */}
       <section
-        className="relative flex flex-col items-center justify-center min-h-screen text-center p-6 overflow-hidden"
+        className="relative flex flex-col items-center justify-center min-h-full text-center p-6 overflow-hidden"
         style={
           {
             "--grid-color": "rgba(203, 213, 225, 0.1)",
@@ -67,7 +67,7 @@ export default function LandingPage() {
         }
       >
         <div className="absolute inset-0 bg-gradient-to-b from-gray-900/50 via-[#1a2035]/80 to-gray-900 z-0"></div>
-        <div className="max-w-4xl mx-auto relative z-10">
+        <div className="max-w-4xl relative z-10 my-28">
           <img
             src="/GoMapperW.svg"
             alt="GoMapper Logo"
