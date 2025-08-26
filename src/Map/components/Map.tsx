@@ -649,49 +649,44 @@ export default function Map({
 
   // --- Route Optimization ---
 
-  // Helper function to generate all permutations of an array
-  const getPermutations = (array: number[]): number[][] => {
-    if (array.length === 0) return [[]];
-    const firstEl = array[0];
-    const rest = array.slice(1);
-    const permsWithoutFirst = getPermutations(rest);
-    const allPermutations: number[][] = [];
-    permsWithoutFirst.forEach((perm) => {
-      for (let i = 0; i <= perm.length; i++) {
-        const permWithFirst = [...perm.slice(0, i), firstEl, ...perm.slice(i)];
-        allPermutations.push(permWithFirst);
-      }
-    });
-    return allPermutations;
-  };
-
-  // TSP solver using brute-force permutations
-  const solveTsp = (distanceMatrix: number[][]): number[] => {
+  // TSP solver using a fast, heuristic-based Nearest Neighbor algorithm.
+  // This provides a good-enough solution for a larger number of pins quickly.
+  const solveTspNearestNeighbor = (distanceMatrix: number[][]): number[] => {
     const numPoints = distanceMatrix.length;
-    const pointsToVisit = Array.from(
-      { length: numPoints - 1 },
-      (_, i) => i + 1
-    );
-    const permutations = getPermutations(pointsToVisit);
+    if (numPoints === 0) return [];
 
-    let bestPermutation: number[] = [];
-    let minDistance = Infinity;
+    const path: number[] = [0]; // Start at the first point
+    const visited: boolean[] = new Array(numPoints).fill(false);
+    visited[0] = true;
+    let numVisited = 1;
 
-    permutations.forEach((perm) => {
-      let currentDistance = 0;
-      let lastPoint = 0; // Start from the first pin
-      perm.forEach((point) => {
-        currentDistance += distanceMatrix[lastPoint][point];
-        lastPoint = point;
-      });
+    let lastPoint = 0;
 
-      if (currentDistance < minDistance) {
-        minDistance = currentDistance;
-        bestPermutation = perm;
+    while (numVisited < numPoints) {
+      let nearestPoint = -1;
+      let minDistance = Infinity;
+
+      // Find the nearest unvisited point from the current point
+      for (let i = 0; i < numPoints; i++) {
+        if (!visited[i] && distanceMatrix[lastPoint][i] < minDistance) {
+          minDistance = distanceMatrix[lastPoint][i];
+          nearestPoint = i;
+        }
       }
-    });
 
-    return [0, ...bestPermutation]; // Return full path including the start
+      if (nearestPoint !== -1) {
+        path.push(nearestPoint);
+        visited[nearestPoint] = true;
+        lastPoint = nearestPoint;
+        numVisited++;
+      } else {
+        // This case handles disconnected graphs, though it's unlikely with OSRM data.
+        // If no unvisited point is reachable, break the loop.
+        break;
+      }
+    }
+
+    return path;
   };
 
   const handleOptimizeRoute = async () => {
@@ -702,10 +697,10 @@ export default function Map({
       });
       return;
     }
-    if (routePins.length > 10) {
+    // Increased limit to 25 thanks to the new heuristic algorithm
+    if (routePins.length > 25) {
       showSnackbar({
-        message:
-          "Route optimization is not supported for more than 10 pins due to complexity.",
+        message: "Route optimization is currently limited to 25 pins.",
         severity: "warning",
       });
       return;
@@ -730,15 +725,15 @@ export default function Map({
       }
       const distanceMatrix = data.distances;
 
-      // 3. Solve the TSP
-      const optimalOrder = solveTsp(distanceMatrix);
+      // 3. Solve the TSP using the Nearest Neighbor algorithm
+      const optimalOrder = solveTspNearestNeighbor(distanceMatrix);
 
       // 4. Reorder the routePins array
       const optimizedRoute = optimalOrder.map((index) => routePins[index]);
       setRoutePins(optimizedRoute);
 
       showSnackbar({
-        message: "Route optimized for the shortest path!",
+        message: "Route optimized successfully!",
         severity: "success",
       });
     } catch (err) {

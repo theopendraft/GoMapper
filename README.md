@@ -1,100 +1,78 @@
 # GoMapper: Your Intelligent Outreach & Location Tracker
 
-[![GoMapper Screenshot]([[https://via.placeholder.com/1200x600?text=GoMapper+Screenshot]](https://ik.imagekit.io/jgy2bd7dv/Screenshot%202025-07-27%20032144.png?updatedAt=1753566762952)(https://ik.imagekit.io/jgy2bd7dv/Screenshot%202025-07-27%20031733.png?updatedAt=1753566763772))]
+[![GoMapper Screenshot](https://ik.imagekit.io/jgy2bd7dv/Screenshot%202025-07-27%20032144.png?updatedAt=1753566762952)](https://go-mapper.vercel.app/)
 
-- [GoMapper](https://go-mapper.vercel.app/) is Live
-
-## Table of Contents
-
--   [About GoMapper](#about-gomapper)
--   [Core Features Implemented](#core-features-implemented)
--   [Future Enhancements & Ideas](#future-enhancements--ideas)
--   [Getting Started](#getting-started)
--   [Technology Stack](#technology-stack)
--   [Contributing](#contributing)
--   [License](#license)
+**[GoMapper is Live! Click here to try it out.](https://go-mapper.vercel.app/)**
 
 ---
 
 ## 1. About GoMapper
 
-GoMapper is a versatile web-based mapping application designed to help individuals and organizations efficiently track, manage, and visualize location-based data for various purposes. Whether you're an NGO coordinating medical check-ups in remote villages, a survey team organizing field data collection, or an adventurer planning custom trekking routes, GoMapper provides the tools you need to map your world.
+GoMapper is a versatile, web-based mapping application designed to help individuals and organizations efficiently track, manage, and visualize location-based data. Whether you're an NGO coordinating medical check-ups in remote villages, a survey team organizing field data collection, or an adventurer planning custom trekking routes, GoMapper provides the tools you need to map your world with precision and insight.
 
-Our goal is to transform traditional location tracking into a dynamic, user-specific, and insightful experience.
+Our mission is to transform traditional location tracking into a dynamic, user-centric, and data-rich experience, all within a secure and intuitive interface.
 
 ## 2. Core Features Implemented
 
-GoMapper currently offers a robust set of features to empower your mapping needs:
+GoMapper offers a robust set of features designed for modern data management and field operations.
 
 ### **Authentication & User Management**
 
--   **Secure Authentication:** User login and signup using email/password.
--   **Social Login:** Seamless integration with Google authentication.
--   **Password Recovery:** Secure "Forgot Password" flow with email-based reset links.
--   **User-Specific Data Isolation:** All user data (projects and pins) is strictly compartmentalized and accessible only by the authenticated owner, enforced by Firebase Security Rules.
--   **Auth Flow:** Dedicated landing page for unauthenticated users, with automatic redirection to the map for logged-in users.
+- **Modern UI:** A sleek, dark-themed, and animated interface for Login, Signup, and the public Landing Page.
+- **Secure Authentication:** User login and signup using email/password, including secure "Forgot Password" flow.
+- **Social Login:** Seamless one-click sign-in with Google.
+- **User-Specific Data Isolation:** All user data (projects, pins, contacts) is strictly compartmentalized and accessible only by the authenticated owner, enforced by Firebase Security Rules.
 
 ### **Project Management**
 
--   **User-Specific Projects:** Authenticated users can create and manage their own distinct projects. Each project acts as an independent map workspace.
--   **Project Creation:** Intuitive interface in the sidebar to create new projects.
--   **Project Selection:** Easily switch between existing projects, dynamically updating the map and associated data.
--   **Project Actions:** Rename and delete projects directly from the sidebar.
+- **User-Specific Projects:** Create and manage distinct projects, each acting as an independent map workspace.
+- **Intuitive Sidebar:** A collapsible sidebar for easy project creation, selection, renaming, and deletion.
+- **Auto-Selection:** The application intelligently opens the last-edited project upon login for a seamless workflow.
 
 ### **Pin Management & Mapping**
 
--   **Flexible Pin Addition:**
-    -   **Manual Map Click:** Add new pins by simply clicking on the map.
-    -   **Location Search:** Utilize a global "Search Map" button (bottom-right) to open a search modal. Search for locations by name (powered by OpenCage Geocoding API), view results, and select a location to place a temporary marker on the map.
-    -   **Temporary Marker Confirmation:** Click the temporary marker to confirm the location and open the pin details form.
--   **Pin Status Tracking:** Categorize pins with "Not Visited," "Planned," and "Visited" statuses, reflected by distinct pin colors on the map.
--   **Comprehensive Pin Details:**
-    -   Edit pin information including: Name, Status, Notes, Last Visit Date, Next Visit Target Date, Tehsil, and Population.
-    -   Manage multiple "Parent Contacts" (Name & Contact Number) for each pin.
-    -   Additional details fields are togglable for a cleaner form interface.
--   **Pin Actions:** Edit and delete individual pins directly from their map popups.
--   **Live Geolocation:** A "Locate Me" button to instantly center the map on the user's current physical location.
--   **Dynamic Map View:** The map automatically adjusts its zoom and center (`fitBounds`) to display all currently filtered and visible pins within the selected project.
+- **Flexible Pin Addition:**
+  - **Manual Map Click:** Add new pins by simply clicking anywhere on the map.
+  - **Global Location Search:** A powerful, navbar-integrated search finds locations worldwide.
+- **Pin Status Tracking:** Categorize pins with "Not Visited," "Planned," and "Visited" statuses, reflected by distinct pin colors for at-a-glance understanding.
+- **Comprehensive Pin Details:**
+  - Edit pin information including Name, Status, Notes, Last Visit Date, Next Visit Target Date, Tehsil, and Population.
+- **Pin Actions:** Edit and delete individual pins directly from their map popups.
+- **Live Geolocation:** A "Locate Me" button to instantly center the map on the user's current physical location.
+- **Dynamic Map View:** The map automatically adjusts its zoom and center (`fitBounds`) to display all currently filtered pins.
+
+### **Contact Management**
+
+- **Location-Based Contacts:** A dedicated "Contacts" page to manage contacts associated with specific map locations.
+- **Interactive Modal:** Click on a location card to open a full-featured modal for adding, viewing, editing, and deleting contacts for that pin.
+- **Responsive Design:** The contacts management interface is fully responsive for seamless use on desktop and mobile.
 
 ### **Dashboard & Data Insights**
 
--   **Map Summary Panel:** An expandable/collapsible panel (bottom-right) provides:
-    -   Real-time statistics (Total, Visited, Planned, Not Visited pins).
-    -   Clickable stats cards to filter pins by status.
-    -   Integrated search bar to filter pins by name.
-    -   List view of filtered pins.
-    -   Export functionality to download pin data as a CSV.
--   **Detailed Dashboard Page:** Includes analytics and visual summaries of project data (charts, calendars, activity logs).
--   **Contacts Page:** A dedicated page to view and manage parent contacts associated with your pins.
+- **Interactive Dashboard:** A dedicated page with analytics and visual summaries, including charts for pin status, a calendar for visit planning, and an activity log.
+- **Map Summary Panel:** An expandable/collapsable and resizable panel on the map screen providing:
+  - Real-time statistics (Total, Visited, Planned, Not Visited pins).
+  - Clickable stat cards to filter pins by status.
+  - Integrated search bar to filter pins by name.
+  - A scrollable list view of filtered pins.
+  - **CSV Export:** Download your filtered pin data with a single click.
 
-## 3. Future Enhancements & Ideas
+### **Advanced Routing**
 
-GoMapper is continuously evolving. Here are some exciting features we envision:
+- **Multi-Stop Route Planning:** Add any number of pins to a route.
+- **Turn-by-Turn Directions:** Generate and view detailed driving directions for your created route.
+- **Route Optimization (TSP):** For routes with up to 10 pins, use the one-click "Optimize Route" feature to automatically reorder the pins for the shortest possible path (Traveling Salesperson Problem solver).
 
-### **Advanced Mapping & Geolocation**
+## 3. Technology Stack
 
--   **Automated Pin Generation for Regions:** For "village outreach" users, integrate advanced geocoding services to automatically generate pins for all entities (e.g., villages) within a specified administrative boundary (district/tehsil).
--   **Route Optimization & Path Drawing:** Enable users to draw lines/polygons on the map and integrate with routing APIs (e.g., Google Directions API, Mapbox Directions) to generate optimized paths between selected pins, useful for hikers/travelers.
--   **Geofencing:** Define custom boundaries on the map and trigger actions or alerts when pins enter/exit these zones.
--   **Custom Map Layers:** Implement a "Layer Control" to switch between different map types (e.g., satellite, terrain, custom themes) and overlay various data layers.
-
-### **Enhanced Project Management & Collaboration**
-
--   **Project Sharing & Collaboration:** Allow users to invite others to view or edit their projects with different permission levels.
--   **Project Archiving:** Ability to archive old projects without permanently deleting them.
--   **Project Search/Filter:** Implement search and additional filtering options within the sidebar for users with many projects.
-
-### **Data Visualization & Analytics**
-
--   **Customizable Dashboard Widgets:** Allow users to personalize their dashboard with preferred charts and metrics.
--   **Heatmaps:** Visualize pin density based on status or other attributes for deeper insights.
--   **Time-Series Tracking:** Track changes in pin status over time to monitor progress.
-
-### **User Experience & Platform Growth**
-
--   **Offline Capabilities:** Enable users to download map tiles and pin data for offline access in areas with no internet connectivity.
--   **User Profile & Settings:** A dedicated "My Profile" page to update username, email, password, and manage app preferences.
--   **Native Mobile Applications:** Explore building companion mobile applications for seamless field data collection.
+- **Frontend:** React, TypeScript, Vite
+- **Styling:** Tailwind CSS
+- **Mapping:** Leaflet, React-Leaflet, Leaflet.MarkerCluster
+- **On-Map Search & Routing:** Leaflet-GeoSearch, OSRM (Open Source Routing Machine)
+- **Authentication & Database:** Google Firebase (Authentication, Firestore)
+- **UI Components & Animations:** Shadcn UI, Framer Motion, Vaul, Lottie
+- **Notifications:** Sonner (for toasts/snackbars)
+- **Utilities:** Lodash, date-fns
 
 ## 4. Getting Started
 
@@ -102,84 +80,39 @@ To get GoMapper up and running on your local machine, follow these steps:
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/theopendraft/Go_Mapper.git](https://github.com/theopendraft/Go_Mapper.git)
+    git clone https://github.com/theopendraft/Go_Mapper.git
     cd Go_Mapper
     ```
 2.  **Install dependencies:**
     ```bash
     npm install
-    # or
-    yarn install
     ```
 3.  **Set up Firebase:**
-    -   Go to [Firebase Console](https://console.firebase.google.com/) and create a new project.
-    -   Enable **Firestore Database** (start in production mode and immediately set up [Security Rules](https://firebase.google.com/docs/firestore/security/overview)).
-        ```firestore
-        rules_version = '2';
-        service cloud.firestore {
-          match /databases/{database}/documents {
-            match /users/{userId} {
-              allow read, create: if request.auth != null && request.auth.uid == userId;
-              allow update, delete: if request.auth.uid == userId;
 
-              match /projects/{projectId} {
-                allow read, create: if request.auth != null && request.auth.uid == userId;
-                allow update, delete: if request.auth.uid == userId;
+    - Go to the [Firebase Console](https://console.firebase.google.com/) and create a new project.
+    - Enable **Firestore Database** and set up security rules to protect user data.
+    - Enable **Authentication** methods (Email/Password, Google).
+    - In your project settings, create a `.env` file in the root and add your Firebase configuration keys:
+      ```env
+      VITE_FIREBASE_API_KEY=your_firebase_api_key
+      VITE_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+      VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
+      VITE_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
+      VITE_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
+      VITE_FIREBASE_APP_ID=your_firebase_app_id
+      ```
+    - **Important:** Do not commit your `.env` file to version control.
 
-                match /pins/{pinId} {
-                  allow read, create: if request.auth != null && request.auth.uid == userId;
-                  allow update, delete: if request.auth.uid == userId;
-                }
-              }
-            }
-          }
-        }
-        ```
-    -   Enable **Authentication** methods you intend to use (Email/Password, Google).
-    -   **Crucially, configure the "Custom action URL"** in Firebase Authentication Settings (under "Email templates"). This is the URL Firebase redirects to for password resets, email verifications, etc.
-        -   **For Local Development:** `http://localhost:5173/auth-action` (replace `5173` with your actual Vite port).
-        -   **For Production:** `https://yourdomain.com/auth-action` (replace `yourdomain.com` with your app's domain).
-        -   Add `localhost` and your production domain to the "Authorized domains" list.
-    -   Create a `.env` file in your project root and add your Firebase configuration and OpenCage API key:
-        ```env
-        VITE_FIREBASE_API_KEY=your_firebase_api_key
-        VITE_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
-        VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
-        VITE_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
-        VITE_FIREBASE_MESSAGING_SENDER_ID=your_firebase_Messaginger_id
-        VITE_FIREBASE_APP_ID=your_firebase_app_id
-        VITE_OPENCAGE_API_KEY=your_opencage_api_key # Get this from OpenCage dashboard: [https://opencagedata.com/](https://opencagedata.com/)
-        ```
-    -   **Important:** Replace placeholder values with your actual Firebase and OpenCage credentials. **Do not commit your `.env` file to Git.**
 4.  **Run the development server:**
     ```bash
     npm run dev
-    # or
-    yarn dev
     ```
-5.  **Open your browser:**
-    -   Navigate to `http://localhost:5173` (or the port Vite outputs).
+5.  **Open your browser** and navigate to `http://localhost:5173` (or the port specified by Vite).
 
-## 5. Technology Stack
+## 5. Contributing
 
--   **Frontend:** React, TypeScript, Vite
--   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
--   **Mapping:** [Leaflet](https://leafletjs.com/), [React-Leaflet](https://react-leaflet.js.org/)
--   **On-Map Search:** [Leaflet-GeoSearch](https://github.com/smeijer/leaflet-geosearch)
--   **Geocoding:** [OpenCage Geocoding API](https://opencagedata.com/)
--   **Authentication & Database:** [Google Firebase](https://firebase.google.com/) (Authentication, Firestore)
--   **Icons:** [React Icons](https://react-icons.github.io/react-icons/) (Feather Icons, Font Awesome)
--   **Animations:** [Framer Motion](https://www.framer.com/motion/) (for subtle UI animations)
--   **Routing:** [React Router DOM](https://reactrouter.com/en/main)
--   **Notifications:** [React Toastify](https://fkhadra.github.io/react-toastify/)
--   **Utilities:** [Lodash](https://lodash.com/) (for debounce)
+We welcome contributions! If you have suggestions or want to contribute to GoMapper, please feel free to open an issue or submit a pull request.
 
-## 6. Contributing
-
-We welcome contributions! If you have suggestions or want to contribute to GoMapper, please feel free to open issues or submit pull requests.
-
-## 7. License
+## 6. License
 
 This project is licensed under the MIT License.
-
----
