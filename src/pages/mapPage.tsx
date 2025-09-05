@@ -117,7 +117,7 @@ export default function MapPage() {
         It uses `fixed` positioning, so it floats over the map content.
         It displays filtered pins and provides controls for them.
       */}
-      <MapSummaryPanel
+      {/* <MapSummaryPanel
         // Pass panel's own search/filter states (from MapPage)
         search={panelSearchQuery}
         setSearch={setPanelSearchQuery}
@@ -129,7 +129,7 @@ export default function MapPage() {
         // Pass user and project context for its data fetching (required by MapSummaryPanel)
         currentUser={currentUser}
         currentProjectId={currentProjectId}
-      />
+      /> */}
     </div>
   );
 }

@@ -159,7 +159,7 @@ export default function ProjectSidebar({
           {/* <h2 className="text-2xl font-bold text-gray-500">GoMapper</h2> */}
         </div>
         {/* Tab Navigation */}
-        <div className="flex border-b border-gray-200 mb-4 mt-14">
+        <div className="flex border-b border-gray-200 mb-4 mt-14 md:mt-4">
           <button
             onClick={() => setActiveTab("projects")}
             className={`flex-1 pb-2 font-medium flex items-center justify-center gap-2 transition-colors border-blue-800 ${

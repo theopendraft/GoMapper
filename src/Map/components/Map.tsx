@@ -810,7 +810,7 @@ export default function Map({
       {/* Container for map and floating buttons */}
       {/* ADD NEW PINS Button (for adding pins by map0click) */}
       <button
-        className="fixed bottom-56 md:bottom-[160px] right-3 z-[1000] flex items-center bg-green-600 text-white rounded-full shadow-lg px-4 py-4 transition-all duration-300 group hover:pr-8 hover:rounded-full "
+        className="fixed bottom-24 md:bottom-6 right-3 z-[1000] flex items-center bg-green-600 text-white rounded-full shadow-lg px-4 py-4 transition-all duration-300 group hover:pr-8 hover:rounded-full "
         onClick={() => {
           if (!currentUser || !currentProjectId) {
             showSnackbar({
